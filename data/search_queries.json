@@ -1,0 +1,59 @@
+{
+  "cutoff_date": "2026-07-12",
+  "earliest_date": "2016-01-01",
+  "arxiv_max_results_per_query": 2000,
+  "arxiv_queries": [
+    {
+      "id": "mechanistic-interpretability",
+      "query": "all:\"mechanistic interpretability\""
+    },
+    {
+      "id": "transformer-circuits",
+      "query": "(all:transformer OR all:\"language model\") AND all:\"transformer circuit\""
+    },
+    {
+      "id": "circuit-discovery",
+      "query": "(all:transformer OR all:\"language model\") AND all:\"circuit discovery\""
+    },
+    {
+      "id": "causal-patching",
+      "query": "(all:transformer OR all:\"language model\") AND (all:\"activation patching\" OR all:\"path patching\" OR all:\"causal tracing\")"
+    },
+    {
+      "id": "sparse-features",
+      "query": "(all:transformer OR all:\"language model\") AND (all:\"sparse autoencoder\" OR all:transcoder OR all:crosscoder)"
+    },
+    {
+      "id": "superposition",
+      "query": "(all:transformer OR all:\"language model\") AND (all:superposition OR all:polysemanticity) AND (all:interpretability OR all:feature)"
+    },
+    {
+      "id": "lenses",
+      "query": "(all:transformer OR all:\"language model\") AND (all:\"logit lens\" OR all:\"tuned lens\" OR all:Patchscopes OR all:\"Jacobian lens\")"
+    },
+    {
+      "id": "automated-interpretability",
+      "query": "(all:transformer OR all:\"language model\") AND (all:\"automated interpretability\" OR all:\"neuron explanation\" OR all:\"feature explanation\")"
+    },
+    {
+      "id": "steering",
+      "query": "(all:transformer OR all:\"language model\") AND (all:\"feature steering\" OR all:\"activation steering\" OR all:\"representation engineering\")"
+    },
+    {
+      "id": "causal-abstraction",
+      "query": "(all:transformer OR all:\"language model\") AND (all:\"causal abstraction\" OR all:\"interchange intervention\")"
+    },
+    {
+      "id": "model-diffing",
+      "query": "(all:transformer OR all:\"language model\") AND (all:\"model diffing\" OR all:\"cross-model feature\")"
+    },
+    {
+      "id": "safety-hidden-behavior",
+      "query": "(all:transformer OR all:\"language model\") AND (all:deception OR all:\"hidden objective\" OR all:\"alignment faking\" OR all:backdoor OR all:\"sleeper agent\" OR all:\"evaluation awareness\") AND (all:activation OR all:representation OR all:circuit OR all:feature)"
+    },
+    {
+      "id": "safety-output-behavior",
+      "query": "(all:transformer OR all:\"language model\") AND (all:refusal OR all:jailbreak OR all:hallucination OR all:bias OR all:truthfulness OR all:memorization OR all:persona) AND (all:\"mechanistic interpretability\" OR all:\"activation steering\" OR all:\"sparse autoencoder\" OR all:circuit)"
+    }
+  ]
+}

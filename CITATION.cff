@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: AI Safety, Interpretability, and Circuits
+message: If this living review is useful, cite the repository and the original sources it indexes.
+type: dataset
+authors:
+  - name: Danny0951
+repository-code: https://github.com/Danny0951/ai-safety-interpretability-circuits
+url: https://github.com/Danny0951/ai-safety-interpretability-circuits
+license: MIT
+date-released: 2026-07-12
