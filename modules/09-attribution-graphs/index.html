@@ -1,0 +1,2497 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How prompt-local feature graphs are constructed, how query–key interactions explain attention, and how to convert graph edges into causal hypotheses.">
+      
+      
+        <meta name="author" content="Danny0951 and contributors">
+      
+      
+        <link rel="canonical" href="https://danny0951.github.io/ai-safety-interpretability-circuits/modules/09-attribution-graphs/">
+      
+      
+        <link rel="prev" href="../08-transcoders-crosscoders/">
+      
+      
+        <link rel="next" href="../10-explanations-workspace/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>09 — Attribution Graphs and Attention Feature Interactions - Inside the Model</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#09-attribution-graphs-and-attention-feature-interactions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Inside the Model" class="md-header__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Inside the Model
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              09 — Attribution Graphs and Attention Feature Interactions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Follow system theme"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Follow system theme" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../course-map/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Course Map
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../00-orientation/" class="md-tabs__link">
+          
+  
+  
+  Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../06-superposition/" class="md-tabs__link">
+          
+  
+  
+  Features & Frontier
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../11-steering/" class="md-tabs__link">
+          
+  
+  
+  Safety & Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../labs/" class="md-tabs__link">
+          
+  
+  
+  Labs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/evidence-ladder/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Full Research Catalog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Inside the Model" class="md-nav__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Inside the Model
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../course-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Course Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · How to Think Mechanistically
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-transformer-anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Transformer Anatomy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-circuit-algebra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Circuit Algebra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-causal-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · Causal Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-canonical-circuits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Canonical Circuits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-automated-circuit-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Automated Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features & Frontier
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features & Frontier
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-superposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Superposition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sparse-autoencoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Sparse Autoencoders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-transcoders-crosscoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Transcoders & Model Diffing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 · Attribution Graphs
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 · Attribution Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-what-the-graph-represents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. What the graph represents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-from-the-full-graph-to-a-readable-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. From the full graph to a readable graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-attention-routing-and-writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Attention: routing and writing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-worked-example-a-softmax-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Worked example: a softmax interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-interpreting-error-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Interpreting error nodes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-causal-validation-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Causal validation protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-modes-and-research-traps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure modes and research traps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-turn-a-graph-into-falsifiable-predictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: turn a graph into falsifiable predictions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-and-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources and implementations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-explanations-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Reading Model Thoughts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety & Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Safety & Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-steering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Steering & Editing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-safety-mechanisms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Safety Mechanisms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-auditing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Auditing Hidden Behavior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-research-rigor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Research That Survives Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-project-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Design a Novel Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/00-environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · Environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/01-activation-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Activations & Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/02-activation-patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Activation Patching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/03-sae-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · SAE Feature Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/04-circuit-tracer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Circuit Tracer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/05-jacobian-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Jacobian Lens & NLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/06-safety-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Harmless Safety Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/07-explanation-showdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Explanation Showdown
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/08-capstone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Capstone Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/evidence-ladder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Ladder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/method-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/formula-sheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formula Sheet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tool-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/reading-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/research-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Research Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-what-the-graph-represents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. What the graph represents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-from-the-full-graph-to-a-readable-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. From the full graph to a readable graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-attention-routing-and-writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Attention: routing and writing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-worked-example-a-softmax-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Worked example: a softmax interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-interpreting-error-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Interpreting error nodes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-causal-validation-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Causal validation protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-modes-and-research-traps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure modes and research traps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-turn-a-graph-into-falsifiable-predictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: turn a graph into falsifiable predictions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-and-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources and implementations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="09-attribution-graphs-and-attention-feature-interactions">09 — Attribution Graphs and Attention Feature Interactions<a class="headerlink" href="#09-attribution-graphs-and-attention-feature-interactions" title="Permanent link">&para;</a></h1>
+<p><strong>Thesis:</strong> An attribution graph is a prompt-local map of influence through a sparse replacement model; it becomes a mechanistic explanation only after its important paths survive causal and robustness tests.</p>
+<h2 id="learning-objectives">Learning objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this module, you should be able to:</p>
+<ol>
+<li>Identify token, feature, error, attention, and output nodes in a feature attribution graph.</li>
+<li>Explain the local linear attribution used to score a source node's direct influence on a target.</li>
+<li>Decompose attention into <strong>QK routing</strong> (“why this source?”) and <strong>OV writing</strong> (“what was moved?”).</li>
+<li>Compute a pairwise query-feature/key-feature contribution to an attention score.</li>
+<li>Design interventions that distinguish a readable graph from a causally sufficient circuit.</li>
+</ol>
+<div class="admonition intuition">
+<p class="admonition-title">A transit map, not the territory</p>
+<p>A graph redraws one forward pass as a small set of influential routes. Pruning makes the route map legible, but it can hide side streets; a transcoder makes features readable, but it is still a replacement; a gradient measures local sensitivity, but not every nonlinear counterfactual.</p>
+</div>
+<h2 id="1-what-the-graph-represents">1. What the graph represents<a class="headerlink" href="#1-what-the-graph-represents" title="Permanent link">&para;</a></h2>
+<p>Circuit Tracer-style graphs replace dense MLP writes with sparse transcoder or cross-layer-transcoder features. For each layer,</p>
+<div class="arithmatex">\[
+x_{l+1}=x_l+a_l+\hat m_l+e_l,
+\]</div>
+<p>where <span class="arithmatex">\(\hat m_l\)</span> is the sparse replacement and <span class="arithmatex">\(e_l=m_l-\hat m_l\)</span> is the reconstruction error. A graph can contain:</p>
+<ul>
+<li><strong>input-token nodes</strong>, representing embedding contributions;</li>
+<li><strong>feature nodes</strong>, with prompt-specific activations <span class="arithmatex">\(z_i\)</span>;</li>
+<li><strong>error nodes</strong>, preserving unexplained MLP computation;</li>
+<li><strong>attention-mediated edges</strong>, carrying information across positions;</li>
+<li><strong>output nodes</strong>, usually logits or a selected scalar such as a logit difference.</li>
+</ul>
+<p>For a scalar target</p>
+<div class="arithmatex">\[
+y=\operatorname{logit}(y_{\text{desired}})
+-\operatorname{logit}(y_{\text{contrast}}),
+\]</div>
+<p>a first-order attribution for source activation <span class="arithmatex">\(u\)</span> is the gradient-times-activation quantity</p>
+<div class="arithmatex">\[
+A_u \approx u\frac{\partial y}{\partial u}.
+\]</div>
+<p>For an edge <span class="arithmatex">\(u\rightarrow v\)</span>, the analogous local direct-effect score is</p>
+<div class="arithmatex">\[
+A_{u\rightarrow v}
+\approx u\frac{\partial v}{\partial u}
+\frac{\partial y}{\partial v},
+\]</div>
+<p>or an equivalent direct linear contribution in the replacement graph. Exact conventions differ by implementation: edge scores may be signed or absolute, normalized, aggregated across paths, or computed with some attention quantities held fixed. Record the convention.</p>
+<pre class="mermaid"><code>flowchart LR
+    T1[Input token: Dallas] --&gt; F1[Feature: Dallas / Texas association]
+    T2[Input token: capital] --&gt; F2[Feature: request state capital]
+    F1 --&gt; A[Attention-mediated routing]
+    F2 --&gt; F3[Feature: answer should be Austin]
+    A --&gt; F3
+    E[Transcoder error node] --&gt; F3
+    F3 --&gt; Y[Target: Austin minus Dallas logit]
+    T3[Other context tokens] -. weak paths pruned .-&gt; Y</code></pre>
+<p>The graph is <strong>prompt-local</strong>: node activation, attention pattern, linearization point, and output target all depend on the specific input.</p>
+<h2 id="2-from-the-full-graph-to-a-readable-graph">2. From the full graph to a readable graph<a class="headerlink" href="#2-from-the-full-graph-to-a-readable-graph" title="Permanent link">&para;</a></h2>
+<p>A typical workflow is:</p>
+<ol>
+<li>Run the original/replacement model and collect active features.</li>
+<li>Choose output targets—top logits or a preregistered contrast.</li>
+<li>Attribute backward through active features, attention paths, tokens, and error nodes.</li>
+<li>Retain at most a compute-budgeted set of feature nodes.</li>
+<li>Prune nodes and edges by cumulative influence thresholds.</li>
+<li>Inspect top-activating examples or automated feature labels.</li>
+<li>Group recurring nodes into a human-level hypothesis.</li>
+<li>Intervene on nodes/paths and test held-out prompts.</li>
+</ol>
+<pre class="mermaid"><code>flowchart TD
+    P[Prompt and target metric] --&gt; R[Replacement-model forward pass]
+    R --&gt; C[Collect active features and errors]
+    C --&gt; A[Compute direct attributions]
+    A --&gt; PR[Prune by node and edge thresholds]
+    PR --&gt; V[Visual graph]
+    V --&gt; H[Human hypothesis]
+    H --&gt; I[Feature or path intervention]
+    I --&gt; M[Measure logit-difference change]
+    M --&gt; S{Replicates across held-out prompts?}
+    S --&gt;|No| H
+    S --&gt;|Yes| E[Candidate mechanism]</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">Pruning is part of the hypothesis</p>
+<p>A node threshold of 0.8 and edge threshold of 0.98 do not mean “80% and 98% of the true mechanism.” They describe retained attribution mass under a particular surrogate and scoring rule. Sweep thresholds and report whether the qualitative story changes.</p>
+</div>
+<h2 id="3-attention-routing-and-writing">3. Attention: routing and writing<a class="headerlink" href="#3-attention-routing-and-writing" title="Permanent link">&para;</a></h2>
+<p>For attention head <span class="arithmatex">\(h\)</span>, destination position <span class="arithmatex">\(t\)</span>, and source position <span class="arithmatex">\(s\)</span>:</p>
+<div class="arithmatex">\[
+q_t^h=W_Q^h x_t,\qquad k_s^h=W_K^h x_s,
+\]</div>
+<div class="arithmatex">\[
+r_{ts}^h=\frac{(q_t^h)^\top k_s^h}{\sqrt{d_h}},
+\qquad
+\alpha_{ts}^h=\operatorname{softmax}_s(r_{ts}^h),
+\]</div>
+<div class="arithmatex">\[
+a_t^h=\sum_s\alpha_{ts}^hW_O^hW_V^h x_s.
+\]</div>
+<p>The <strong>QK circuit</strong> determines which source positions receive attention. The <strong>OV circuit</strong> determines what each attended source writes into the destination residual stream.</p>
+<p>Suppose sparse features decompose destination and source states:</p>
+<div class="arithmatex">\[
+x_t\approx\sum_i z_{i,t}d_i,
+\qquad
+x_s\approx\sum_j z_{j,s}d_j.
+\]</div>
+<p>Ignoring biases and error terms for the moment, the interaction between query-side feature <span class="arithmatex">\(i\)</span> and key-side feature <span class="arithmatex">\(j\)</span> contributes</p>
+<div class="arithmatex">\[
+C_{ij}^{h}(t,s)
+=z_{i,t}z_{j,s}
+\frac{(W_Q^h d_i)^\top(W_K^h d_j)}{\sqrt{d_h}}
+\]</div>
+<p>to the pre-softmax attention score. This is a <strong>bilinear interaction</strong>: neither feature alone determines the route. Bias, token embedding, other features, and sparse-coder error add further terms.</p>
+<pre class="mermaid"><code>flowchart LR
+    QF[Query-side feature at destination] --&gt; Q[Q projection]
+    KF[Key-side feature at candidate source] --&gt; K[K projection]
+    Q --&gt; DOT[Scaled dot product]
+    K --&gt; DOT
+    DOT --&gt; SM[Softmax over all source positions]
+    SM --&gt; W[Routing weight alpha]
+    VF[Value-side source content] --&gt; OV[V then O projection]
+    W --&gt; MIX[Weighted write]
+    OV --&gt; MIX
+    MIX --&gt; X[Destination residual stream]</code></pre>
+<p>Feature interactions explain <strong>why</strong> a head prefers one token. Value/OV analysis explains <strong>what</strong> the head transports. A complete attention story needs both.</p>
+<h2 id="4-worked-example-a-softmax-interaction">4. Worked example: a softmax interaction<a class="headerlink" href="#4-worked-example-a-softmax-interaction" title="Permanent link">&para;</a></h2>
+<p>At the final token, suppose a head chooses between two source positions. A query-side feature means “retrieve the relevant named entity.” One key-side feature marks the correct entity. Their QK interaction gives pre-softmax scores</p>
+<div class="arithmatex">\[
+r_{t,\text{correct}}=2,
+\qquad
+r_{t,\text{distractor}}=0.
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+\alpha_{t,\text{correct}}
+=\frac{e^2}{e^2+1}\approx0.881,
+\qquad
+\alpha_{t,\text{distractor}}\approx0.119.
+\]</div>
+<p>If ablating the query feature removes that interaction and both scores become zero, attention changes to <span class="arithmatex">\((0.5,0.5)\)</span>. If the OV path writes <span class="arithmatex">\(+3\)</span> units of target logit difference from the correct source and <span class="arithmatex">\(-1\)</span> from the distractor, the head's contribution changes from</p>
+<div class="arithmatex">\[
+0.881(3)+0.119(-1)\approx2.52
+\]</div>
+<p>to</p>
+<div class="arithmatex">\[
+0.5(3)+0.5(-1)=1.
+\]</div>
+<p>The graph might assign a strong edge to the query/key feature interaction. The causal prediction is a roughly <span class="arithmatex">\(1.52\)</span>-unit decrease in logit difference—but only under this simplified local calculation. Other heads, changed downstream nonlinearities, and compensating paths can alter the actual intervention result.</p>
+<div class="admonition example">
+<p class="admonition-title">Three increasingly strong tests</p>
+<ol>
+<li><strong>Node ablation:</strong> set the query feature to zero and measure the target logit difference.</li>
+<li><strong>Route test:</strong> patch or recompute only the relevant attention score/pattern while preserving other writes.</li>
+<li><strong>Mediation test:</strong> alter the upstream cue, then restore the candidate feature or route and test whether behavior returns.</li>
+</ol>
+</div>
+<h2 id="5-interpreting-error-nodes">5. Interpreting error nodes<a class="headerlink" href="#5-interpreting-error-nodes" title="Permanent link">&para;</a></h2>
+<p>Error nodes answer “how much important computation did the dictionary miss?” They can be:</p>
+<ul>
+<li>small in norm but strongly aligned with the output;</li>
+<li>diffuse across many prompts;</li>
+<li>interpretable using another SAE, a lens, or an activation verbalizer;</li>
+<li>evidence that the current dictionary is inadequate at the target site.</li>
+</ul>
+<p>Run at least these checks:</p>
+<div class="arithmatex">\[
+\text{error attribution fraction}
+=\frac{\sum_{e\in\mathcal E}|A_e|}
+{\sum_{v\in\mathcal V}|A_v|},
+\]</div>
+<p>plus direct error ablation and original-versus-replacement task fidelity. The fraction is diagnostic, not a universal faithfulness guarantee.</p>
+<h2 id="6-causal-validation-protocol">6. Causal validation protocol<a class="headerlink" href="#6-causal-validation-protocol" title="Permanent link">&para;</a></h2>
+<p>For every claimed subgraph:</p>
+<ol>
+<li>Define a clean/corrupt or desired/contrast metric before inspecting interventions.</li>
+<li>Ablate selected features at their observed scale; preserve reconstruction error.</li>
+<li>Compare with random, activation-matched, layer-matched, and attribution-matched controls.</li>
+<li>Test individual nodes, the group, and dose–response.</li>
+<li>Test at least one upstream-to-downstream mediation prediction.</li>
+<li>Repeat across held-out prompt templates and paraphrases.</li>
+<li>Compare graph stability across pruning thresholds and, if possible, transcoder checkpoints.</li>
+<li>Report the replacement model's fidelity and the effect of error nodes.</li>
+</ol>
+<p>Freezing attention patterns during an intervention can isolate a direct linear edge, but it also makes some edge confirmations close to construction. Re-run the strongest claims with attention allowed to respond naturally.</p>
+<h2 id="failure-modes-and-research-traps">Failure modes and research traps<a class="headerlink" href="#failure-modes-and-research-traps" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Replacement-model shortcut</td>
+<td>Graph is faithful to the transcoder, not the original dense computation</td>
+</tr>
+<tr>
+<td>Local linearization</td>
+<td>Large ablations leave the regime where edge scores are accurate</td>
+</tr>
+<tr>
+<td>Softmax competition</td>
+<td>Changing one QK interaction redistributes attention globally</td>
+</tr>
+<tr>
+<td>Pruning instability</td>
+<td>A tidy story changes when thresholds move slightly</td>
+</tr>
+<tr>
+<td>Prompt specificity</td>
+<td>A graph explains one wording rather than the behavior class</td>
+</tr>
+<tr>
+<td>Error omission</td>
+<td>Uninterpreted computation vanishes from the diagram</td>
+</tr>
+<tr>
+<td>Frozen-attention validation</td>
+<td>Direct effects are confirmed under an artificially fixed route</td>
+</tr>
+<tr>
+<td>Automated label overreach</td>
+<td>A plausible name substitutes for activation evidence</td>
+</tr>
+<tr>
+<td>Correlated parallel causes</td>
+<td>Ablating one node has little effect because another compensates</td>
+</tr>
+<tr>
+<td>Target choice leakage</td>
+<td>Attributing top logits after seeing them answers a different question from a preregistered contrast</td>
+</tr>
+</tbody>
+</table>
+<h2 id="knowledge-check">Knowledge check<a class="headerlink" href="#knowledge-check" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p>What is the difference between a QK explanation and an OV explanation?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>QK explains why the head routes attention to a source position; OV explains what information that source contributes to the destination residual stream.
+</details></p>
+</li>
+<li>
+<p>Why is an attention-score interaction between two features bilinear?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>The score contains a dot product of a query projection and a key projection. If each is linear in its feature activation, their contribution contains the product <span class="arithmatex">\(z_{i,t}z_{j,s}\)</span>.
+</details></p>
+</li>
+<li>
+<p>Does retaining 98% cumulative edge attribution imply 98% causal faithfulness?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>No. It is 98% under the chosen attribution, replacement model, target, and aggregation rule. Approximation error, omitted inactive/nonlinear interactions, and intervention behavior can differ.
+</details></p>
+</li>
+<li>
+<p>Why test with attention both frozen and unfrozen?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>Frozen attention isolates the direct linear path described by an edge. Unfrozen attention tests the model's natural counterfactual response, including rerouting and compensation.
+</details></p>
+</li>
+</ol>
+<h2 id="exercise-turn-a-graph-into-falsifiable-predictions">Exercise: turn a graph into falsifiable predictions<a class="headerlink" href="#exercise-turn-a-graph-into-falsifiable-predictions" title="Permanent link">&para;</a></h2>
+<p>Take one public Circuit Tracer graph and choose a three-to-eight-node subgraph.</p>
+<ol>
+<li>State each node's layer, position, feature index, and evidence-based label.</li>
+<li>Identify which edges are residual, attention-OV, or attention-QK interactions.</li>
+<li>Predict signed changes in a logit difference for three node ablations.</li>
+<li>Define matched control nodes and a threshold-sensitivity analysis.</li>
+<li>Propose a mediation intervention and an unfrozen-attention replication.</li>
+<li>Specify a prompt paraphrase that should preserve the mechanism and one that should change it.</li>
+</ol>
+<p>Score the graph only after writing the predictions. A useful report includes incorrect predictions and what they reveal about the surrogate.</p>
+<h2 id="primary-sources-and-implementations">Primary sources and implementations<a class="headerlink" href="#primary-sources-and-implementations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Ameisen et al., <a href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html"><em>Circuit Tracing: Revealing Computational Graphs in Language Models</em></a> (2025).</li>
+<li>Lindsey et al., <a href="https://transformer-circuits.pub/2025/attribution-graphs/biology.html"><em>On the Biology of a Large Language Model</em></a> (2025).</li>
+<li>Kamath et al., <a href="https://transformer-circuits.pub/2025/attention-qk/index.html"><em>Tracing Attention Computation Through Feature Interactions</em></a> (2025).</li>
+<li>Hanna, Piotrowski, Lindsey, and Ameisen, <a href="https://github.com/decoderesearch/circuit-tracer">Circuit Tracer</a> (open implementation).</li>
+<li>Marks et al., <a href="https://openreview.net/forum?id=I4e82CIDxv"><em>Sparse Feature Circuits</em></a> and <a href="https://github.com/saprmarks/feature-circuits">code</a> (2025).</li>
+<li>Syed, Rager, and Conmy, <a href="https://arxiv.org/abs/2310.10348"><em>Attribution Patching Outperforms Automated Circuit Discovery</em></a> (2023).</li>
+<li>Hanna, Pezzelle, and Belinkov, <a href="https://arxiv.org/abs/2403.17806"><em>Have Faith in Faithfulness</em></a> and <a href="https://github.com/hannamw/EAP-IG">EAP-IG code</a> (2024–2026).</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Built from a living systematic review · Course content licensed MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" target="_blank" rel="noopener" title="Course repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../javascripts/progress.js"></script>
+      
+    
+  </body>
+</html>

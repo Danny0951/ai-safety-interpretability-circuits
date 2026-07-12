@@ -1,0 +1,2978 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Compare exact patching, ACDC, attribution methods, mask optimization, sparse feature circuits, and replacement-model attribution graphs.">
+      
+      
+        <meta name="author" content="Danny0951 and contributors">
+      
+      
+        <link rel="canonical" href="https://danny0951.github.io/ai-safety-interpretability-circuits/modules/05-automated-circuit-discovery/">
+      
+      
+        <link rel="prev" href="../04-canonical-circuits/">
+      
+      
+        <link rel="next" href="../06-superposition/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Automated Circuit Discovery - Inside the Model</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#05-automated-circuit-discovery" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Inside the Model" class="md-header__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Inside the Model
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Automated Circuit Discovery
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Follow system theme"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Follow system theme" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../course-map/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Course Map
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../00-orientation/" class="md-tabs__link">
+          
+  
+  
+  Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../06-superposition/" class="md-tabs__link">
+          
+  
+  
+  Features & Frontier
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../11-steering/" class="md-tabs__link">
+          
+  
+  
+  Safety & Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../labs/" class="md-tabs__link">
+          
+  
+  
+  Labs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/evidence-ladder/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Full Research Catalog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Inside the Model" class="md-nav__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Inside the Model
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../course-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Course Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · How to Think Mechanistically
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-transformer-anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Transformer Anatomy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-circuit-algebra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Circuit Algebra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-causal-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · Causal Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-canonical-circuits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Canonical Circuits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Automated Discovery
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Automated Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-choose-the-graph-before-searching-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Choose the graph before searching it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-exact-activation-and-edge-patching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Exact activation and edge patching
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-acdc-iterative-causal-pruning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. ACDC: iterative causal pruning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-edge-attribution-patching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Edge Attribution Patching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Edge Attribution Patching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integrated-gradients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integrated gradients
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atp-and-attention-specific-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AtP* and attention-specific fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mask-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Mask optimization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-feature-level-circuit-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Feature-level circuit discovery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Feature-level circuit discovery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sparse-feature-circuits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sparse feature circuits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-layer-transcoders-and-attribution-graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-layer transcoders and attribution graphs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-comparing-discovery-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Comparing discovery methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-evaluating-a-discovered-circuit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Evaluating a discovered circuit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Evaluating a discovered circuit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#faithfulness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Faithfulness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completeness-and-necessity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completeness and necessity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sparsity-and-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sparsity and efficiency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#predictive-validity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Predictive validity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-worked-example-discover-a-four-edge-circuit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Worked example: discover a four-edge circuit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-practical-exercise-discovery-method-bake-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Practical exercise: discovery-method bake-off
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-primary-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical primary sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features & Frontier
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features & Frontier
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-superposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Superposition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sparse-autoencoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Sparse Autoencoders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-transcoders-crosscoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Transcoders & Model Diffing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-attribution-graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 · Attribution Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-explanations-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Reading Model Thoughts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety & Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Safety & Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-steering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Steering & Editing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-safety-mechanisms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Safety Mechanisms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-auditing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Auditing Hidden Behavior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-research-rigor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Research That Survives Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-project-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Design a Novel Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/00-environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · Environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/01-activation-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Activations & Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/02-activation-patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Activation Patching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/03-sae-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · SAE Feature Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/04-circuit-tracer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Circuit Tracer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/05-jacobian-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Jacobian Lens & NLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/06-safety-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Harmless Safety Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/07-explanation-showdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Explanation Showdown
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/08-capstone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Capstone Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/evidence-ladder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Ladder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/method-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/formula-sheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formula Sheet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tool-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/reading-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/research-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Research Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-choose-the-graph-before-searching-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Choose the graph before searching it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-exact-activation-and-edge-patching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Exact activation and edge patching
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-acdc-iterative-causal-pruning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. ACDC: iterative causal pruning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-edge-attribution-patching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Edge Attribution Patching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Edge Attribution Patching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integrated-gradients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integrated gradients
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atp-and-attention-specific-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AtP* and attention-specific fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mask-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Mask optimization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-feature-level-circuit-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Feature-level circuit discovery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Feature-level circuit discovery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sparse-feature-circuits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sparse feature circuits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-layer-transcoders-and-attribution-graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-layer transcoders and attribution graphs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-comparing-discovery-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Comparing discovery methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-evaluating-a-discovered-circuit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Evaluating a discovered circuit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Evaluating a discovered circuit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#faithfulness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Faithfulness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completeness-and-necessity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completeness and necessity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sparsity-and-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sparsity and efficiency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#predictive-validity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Predictive validity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-worked-example-discover-a-four-edge-circuit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Worked example: discover a four-edge circuit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-practical-exercise-discovery-method-bake-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Practical exercise: discovery-method bake-off
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-primary-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical primary sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="05-automated-circuit-discovery">05 — Automated Circuit Discovery<a class="headerlink" href="#05-automated-circuit-discovery" title="Permanent link">&para;</a></h1>
+<p><strong>Thesis:</strong> Automated discovery methods are search procedures over a chosen graph and counterfactual—not automatic proofs that the returned subgraph is the model's true mechanism.</p>
+<p>Manual circuit analysis does not scale to thousands of components and millions
+of possible edges. Automated methods rank, prune, or optimize candidate graphs,
+but they inherit the assumptions of their nodes, edges, corruption data,
+ablation baseline, attribution approximation, and faithfulness metric.</p>
+<div class="admonition intuition">
+<p class="admonition-title">Intuition</p>
+<p>Automated circuit discovery is like using a metal detector at an
+archaeological site: it narrows where to dig. The returned score is evidence
+about sensitivity under one setup; excavation—exact interventions, controls,
+and semantic tests—is still required.</p>
+</div>
+<p><strong>Estimated time:</strong> 3.5 hours<br />
+<strong>Prerequisites:</strong> Modules 01–04 and familiarity with gradients</p>
+<h2 id="learning-objectives">Learning objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this module, you should be able to:</p>
+<ol>
+<li>Define a transformer computation graph at component or feature granularity.</li>
+<li>Derive exact activation-patching, EAP, integrated-gradient, and mask-based
+   edge scores.</li>
+<li>Explain ACDC's iterative pruning and its dependence on patching choices.</li>
+<li>Compare ACDC, EAP, AtP*, EAP-IG, mask optimization, sparse feature circuits,
+   and Circuit Tracer.</li>
+<li>Evaluate a discovered circuit using faithfulness, sparsity, completeness,
+   stability, runtime, and held-out causal predictions.</li>
+<li>Recognize replacement errors, gradient failures, interaction effects, and
+   ablation sensitivity.</li>
+</ol>
+<h2 id="1-choose-the-graph-before-searching-it">1. Choose the graph before searching it<a class="headerlink" href="#1-choose-the-graph-before-searching-it" title="Permanent link">&para;</a></h2>
+<p>Represent the instrumented model as a directed acyclic graph</p>
+<div class="arithmatex">\[
+G=(V,E),
+\]</div>
+<p>where nodes might be:</p>
+<ul>
+<li>attention heads and MLPs;</li>
+<li>individual neurons;</li>
+<li>residual states at layer-position pairs;</li>
+<li>Q, K, V, pattern, and head-result tensors;</li>
+<li>sparse autoencoder or transcoder features;</li>
+<li>token embeddings, logits, and reconstruction-error terms.</li>
+</ul>
+<p>An edge <span class="arithmatex">\(e=(u\rightarrow v)\)</span> means the output of <span class="arithmatex">\(u\)</span> contributes to an input of
+<span class="arithmatex">\(v\)</span> under the selected decomposition. A coarse node graph may hide which input
+channel carries information. A very fine graph increases search cost and
+multiple-comparison risk.</p>
+<pre class="mermaid"><code>flowchart LR
+    E0[Token embeddings] --&gt; H1[Head 1]
+    E0 --&gt; M1[MLP 1]
+    H1 --&gt; H2[Head 2 Q input]
+    H1 --&gt; M2[MLP 2 input]
+    M1 --&gt; H2
+    M1 --&gt; M2
+    H2 --&gt; L[Logits]
+    M2 --&gt; L</code></pre>
+<p>The graph is an analysis coordinate system, not a discovery result. If the
+useful variable is distributed across nodes or lies in a reconstruction-error
+term, no edge-ranking algorithm can recover a clean feature circuit from the
+wrong graph.</p>
+<h2 id="2-exact-activation-and-edge-patching">2. Exact activation and edge patching<a class="headerlink" href="#2-exact-activation-and-edge-patching" title="Permanent link">&para;</a></h2>
+<p>For a destination run, exact patching replaces a component activation <span class="arithmatex">\(h_v\)</span>
+with its source value and reruns the downstream model. For edge patching, only
+the contribution from sender <span class="arithmatex">\(u\)</span> to receiver <span class="arithmatex">\(v\)</span> is replaced while other inputs
+to <span class="arithmatex">\(v\)</span> retain destination values.</p>
+<p>An exact single-edge effect can be written</p>
+<div class="arithmatex">\[
+S_{exact}(e)=M\!\left(f_{e\leftarrow e^{src}}(x^{dst})\right)
+-M\!\left(f(x^{dst})\right).
+\]</div>
+<p>This is expensive: testing every layer, position, component, and edge can
+require hundreds or thousands of forward passes. Exact patching is nevertheless
+the reference test for a short list of candidates.</p>
+<h2 id="3-acdc-iterative-causal-pruning">3. ACDC: iterative causal pruning<a class="headerlink" href="#3-acdc-iterative-causal-pruning" title="Permanent link">&para;</a></h2>
+<p>Automatic Circuit Discovery (ACDC) begins with a large computational graph and
+iteratively removes edges. For each candidate edge, it patches or ablates that
+edge and measures how much a task metric or output-divergence changes. Edges
+whose removal changes the objective less than a threshold are pruned.</p>
+<pre class="mermaid"><code>flowchart TD
+    FULL[Start with full candidate graph] --&gt; PICK[Choose edge in reverse topological order]
+    PICK --&gt; PATCH[Patch / ablate edge]
+    PATCH --&gt; SCORE[Measure metric or divergence]
+    SCORE --&gt; DEC{Effect above threshold?}
+    DEC --&gt;|yes| KEEP[Keep edge]
+    DEC --&gt;|no| DROP[Remove edge]
+    KEEP --&gt; MORE{Edges remain?}
+    DROP --&gt; MORE
+    MORE --&gt;|yes| PICK
+    MORE --&gt;|no| CIRC[Return circuit]</code></pre>
+<p>ACDC is more causally grounded than an attention or gradient ranking, but:</p>
+<ul>
+<li>iterative effects depend on pruning order;</li>
+<li>redundant edges may be removed one at a time;</li>
+<li>thresholds trade sparsity against faithfulness;</li>
+<li>many patching runs are costly;</li>
+<li>the corruption and ablation define the discovered circuit.</li>
+</ul>
+<h2 id="4-edge-attribution-patching">4. Edge Attribution Patching<a class="headerlink" href="#4-edge-attribution-patching" title="Permanent link">&para;</a></h2>
+<p>Edge Attribution Patching (EAP) uses a first-order Taylor approximation. Let
+<span class="arithmatex">\(a_e^{clean}\)</span> and <span class="arithmatex">\(a_e^{corrupt}\)</span> be an edge activation, and let the metric be
+evaluated at the corrupt run. Then</p>
+<div class="arithmatex">\[
+S_{EAP}(e)
+\approx
+\left(a_e^{clean}-a_e^{corrupt}\right)^\top
+\nabla_{a_e}M\big|_{a^{corrupt}}.
+\]</div>
+<p>One clean forward pass, one corrupt forward pass, and one backward pass can
+score many edges. The dot product asks whether moving the edge activation from
+corrupt toward clean aligns with the local metric gradient.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A near-zero gradient can mean “unimportant,” but it can also mean saturated
+attention, cancellation, or curvature. First-order attribution is a ranking
+heuristic, not an exact intervention result.</p>
+</div>
+<h3 id="integrated-gradients">Integrated gradients<a class="headerlink" href="#integrated-gradients" title="Permanent link">&para;</a></h3>
+<p>EAP with integrated gradients evaluates derivatives along a path</p>
+<div class="arithmatex">\[
+a_e(\alpha)=a_e^{corrupt}+\alpha
+\left(a_e^{clean}-a_e^{corrupt}\right),\quad \alpha\in[0,1],
+\]</div>
+<p>and scores</p>
+<div class="arithmatex">\[
+S_{IG}(e)=
+\left(a_e^{clean}-a_e^{corrupt}\right)^\top
+\int_0^1 \nabla_{a_e}M(a(\alpha))\,d\alpha.
+\]</div>
+<p>Numerically this is a sum over interpolation steps. It reduces some local
+gradient failures at greater compute cost. The straight-line activation path
+can itself pass through unnatural states.</p>
+<h3 id="atp-and-attention-specific-fixes">AtP* and attention-specific fixes<a class="headerlink" href="#atp-and-attention-specific-fixes" title="Permanent link">&para;</a></h3>
+<p>AtP* targets two important failure modes:</p>
+<ul>
+<li><strong>QK attention saturation:</strong> softmax gradients can vanish even when changing
+  Q/K would move attention under a sufficiently large intervention.</li>
+<li><strong>gradient cancellation:</strong> contributions through different downstream paths
+  can cancel in a single backward pass.</li>
+</ul>
+<p>Its QK correction and GradDrop-style decompositions improve recall of important
+components, but do not eliminate baseline or interaction dependence.</p>
+<h2 id="5-mask-optimization">5. Mask optimization<a class="headerlink" href="#5-mask-optimization" title="Permanent link">&para;</a></h2>
+<p>Instead of ranking edges independently, learn continuous gates
+<span class="arithmatex">\(g_e\in[0,1]\)</span> that interpolate between retained and ablated edge values:</p>
+<div class="arithmatex">\[
+a'_e=g_ea_e+(1-g_e)b_e.
+\]</div>
+<p>A typical objective is</p>
+<div class="arithmatex">\[
+\min_g\;
+\mathbb{E}_{x\sim D}
+\left[\mathcal{L}\big(f_g(x),f(x)\big)\right]
++\lambda\sum_e g_e,
+\]</div>
+<p>where the first term preserves behavior or output distributions and the second
+encourages sparsity.</p>
+<p>Joint optimization can capture some interactions missed by independent scores,
+but it introduces optimizer, initialization, regularization, and discretization
+choices. A soft mask can exploit fractional computations that do not correspond
+to a faithful hard subgraph.</p>
+<h2 id="6-feature-level-circuit-discovery">6. Feature-level circuit discovery<a class="headerlink" href="#6-feature-level-circuit-discovery" title="Permanent link">&para;</a></h2>
+<p>Component graphs are often too coarse: a head or MLP can support many unrelated
+features. Sparse dictionaries provide candidate feature nodes.</p>
+<h3 id="sparse-feature-circuits">Sparse feature circuits<a class="headerlink" href="#sparse-feature-circuits" title="Permanent link">&para;</a></h3>
+<p>An SAE decomposes an activation as a reconstruction plus an error term:</p>
+<div class="arithmatex">\[
+x=\hat x+\epsilon,\qquad \hat x=W_df(x)+b,
+\]</div>
+<p>where <span class="arithmatex">\(f(x)\)</span> is sparse and <span class="arithmatex">\(\epsilon=x-\hat x\)</span> is reconstruction error. Feature
+circuits attribute task behavior through sparse feature activations and include
+error terms so omitted directions do not silently disappear.</p>
+<p>The graph can be more semantically legible, but its faithfulness is bounded by:</p>
+<ul>
+<li>dictionary reconstruction;</li>
+<li>feature splitting, absorption, and polysemanticity;</li>
+<li>the arbitrary learned basis among similarly good dictionaries;</li>
+<li>whether causal computation remains in error nodes.</li>
+</ul>
+<h3 id="cross-layer-transcoders-and-attribution-graphs">Cross-layer transcoders and attribution graphs<a class="headerlink" href="#cross-layer-transcoders-and-attribution-graphs" title="Permanent link">&para;</a></h3>
+<p>Circuit Tracer replaces original MLP computations locally with sparse
+cross-layer transcoders. With attention patterns and some normalization terms
+held fixed, it builds a locally linear attribution graph connecting token,
+feature, error, and logit nodes.</p>
+<pre class="mermaid"><code>flowchart LR
+    TOK[Token nodes] --&gt; F1[Sparse features]
+    TOK --&gt; ERR[Error nodes]
+    F1 --&gt; F2[Downstream features]
+    ERR --&gt; F2
+    F1 --&gt; LOG[Logit nodes]
+    F2 --&gt; LOG
+    ERR --&gt; LOG</code></pre>
+<p>The graph is a prompt-local explanation of a replacement computation. Important
+checks are replacement fidelity, error-node mass, intervention agreement, and
+whether pruning removes collectively important paths. Original attention QK
+computation remains less fully represented than MLP feature interactions.</p>
+<h2 id="7-comparing-discovery-methods">7. Comparing discovery methods<a class="headerlink" href="#7-comparing-discovery-methods" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Main unit</th>
+<th>Approximation</th>
+<th style="text-align: right;">Typical cost</th>
+<th>Main strength</th>
+<th>Main failure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact patching</td>
+<td>Node/edge</td>
+<td>Counterfactual still baseline-dependent</td>
+<td style="text-align: right;">Very high</td>
+<td>Direct causal effect for tested intervention</td>
+<td>Combinatorial search</td>
+</tr>
+<tr>
+<td>ACDC</td>
+<td>Edge</td>
+<td>Greedy thresholded pruning</td>
+<td style="text-align: right;">High</td>
+<td>Causal, sparse graph search</td>
+<td>Order/redundancy/threshold sensitivity</td>
+</tr>
+<tr>
+<td>EAP</td>
+<td>Edge</td>
+<td>First-order Taylor</td>
+<td style="text-align: right;">Low</td>
+<td>Scores many edges rapidly</td>
+<td>Saturation, curvature, cancellation</td>
+</tr>
+<tr>
+<td>EAP-IG</td>
+<td>Edge</td>
+<td>Integrated path</td>
+<td style="text-align: right;">Medium–high</td>
+<td>Better nonlinear coverage</td>
+<td>Path choice and step cost</td>
+</tr>
+<tr>
+<td>AtP*</td>
+<td>Component/site</td>
+<td>Gradient with QK/cancellation fixes</td>
+<td style="text-align: right;">Low–medium</td>
+<td>Better recall for attention/cancelled paths</td>
+<td>Still approximate/local</td>
+</tr>
+<tr>
+<td>Mask optimization</td>
+<td>Node/edge</td>
+<td>Soft gates and chosen ablation</td>
+<td style="text-align: right;">High</td>
+<td>Joint sparse selection</td>
+<td>Optimization and discretization artifacts</td>
+</tr>
+<tr>
+<td>Sparse feature circuits</td>
+<td>Feature/error</td>
+<td>Learned dictionary</td>
+<td style="text-align: right;">Medium–high</td>
+<td>More semantic nodes</td>
+<td>Dictionary/error dependence</td>
+</tr>
+<tr>
+<td>Circuit Tracer</td>
+<td>Feature/path</td>
+<td>Sparse replacement plus local linearization</td>
+<td style="text-align: right;">Medium</td>
+<td>Rich prompt-level graphs and interventions</td>
+<td>Surrogate and frozen-attention faithfulness</td>
+</tr>
+</tbody>
+</table>
+<p>No method dominates every axis. A practical pipeline uses a cheap high-recall
+method to shortlist candidates, then exact patching and held-out predictions to
+validate them.</p>
+<h2 id="8-evaluating-a-discovered-circuit">8. Evaluating a discovered circuit<a class="headerlink" href="#8-evaluating-a-discovered-circuit" title="Permanent link">&para;</a></h2>
+<p>Let <span class="arithmatex">\(C_k\)</span> be the top-<span class="arithmatex">\(k\)</span> edges or nodes. Report a curve, not one threshold.</p>
+<h3 id="faithfulness">Faithfulness<a class="headerlink" href="#faithfulness" title="Permanent link">&para;</a></h3>
+<p>For output distributions, compare circuit and full model using KL divergence or
+task loss. For a logit-difference task:</p>
+<div class="arithmatex">\[
+F(C_k)=1-
+\frac{|M(f_{C_k})-M(f)|}
+     {|M(f)|+\epsilon}.
+\]</div>
+<p>The precise normalization must be reported, and negative values should not be
+hidden.</p>
+<h3 id="completeness-and-necessity">Completeness and necessity<a class="headerlink" href="#completeness-and-necessity" title="Permanent link">&para;</a></h3>
+<p>Preserve <span class="arithmatex">\(C_k\)</span> while ablating the complement to test sufficiency. Ablate <span class="arithmatex">\(C_k\)</span>
+inside the full model to test necessity. Evaluate multiple baselines.</p>
+<h3 id="sparsity-and-efficiency">Sparsity and efficiency<a class="headerlink" href="#sparsity-and-efficiency" title="Permanent link">&para;</a></h3>
+<p>Report edge/node count, density relative to the candidate graph, discovery
+forward/backward passes, wall-clock time, and peak memory.</p>
+<h3 id="stability">Stability<a class="headerlink" href="#stability" title="Permanent link">&para;</a></h3>
+<p>Compare graphs across:</p>
+<ul>
+<li>bootstrap samples;</li>
+<li>prompt templates and lexical substitutions;</li>
+<li>clean/corrupt pair construction;</li>
+<li>thresholds and ablation baselines;</li>
+<li>model seeds/checkpoints;</li>
+<li>feature dictionaries or transcoder scales.</li>
+</ul>
+<p>Weighted Jaccard, rank correlation, and prediction agreement are more useful
+than demanding exact edge identity when redundant implementations exist.</p>
+<h3 id="predictive-validity">Predictive validity<a class="headerlink" href="#predictive-validity" title="Permanent link">&para;</a></h3>
+<p>The strongest test is whether the discovered circuit predicts a new targeted
+intervention on held-out examples. A graph that reconstructs the original
+metric but cannot predict intervention signs is a compression, not yet a
+mechanistic explanation.</p>
+<h2 id="9-worked-example-discover-a-four-edge-circuit">9. Worked example: discover a four-edge circuit<a class="headerlink" href="#9-worked-example-discover-a-four-edge-circuit" title="Permanent link">&para;</a></h2>
+<p>Suppose a candidate graph contains sender nodes <span class="arithmatex">\(A,B,C\)</span>, receiver <span class="arithmatex">\(D\)</span>, and the
+logit node <span class="arithmatex">\(Y\)</span>. A cheap EAP screen returns:</p>
+<table>
+<thead>
+<tr>
+<th>Edge</th>
+<th style="text-align: right;">EAP score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(A\rightarrow D\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(+1.8\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(B\rightarrow D\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(+0.1\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(C\rightarrow D\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(-0.9\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(D\rightarrow Y\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(+2.2\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(A\rightarrow Y\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(+0.3\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>A naive top-positive circuit retains <span class="arithmatex">\(A\rightarrow D\rightarrow Y\)</span> and drops
+<span class="arithmatex">\(C\rightarrow D\)</span>. Exact tests show:</p>
+<ul>
+<li>patching <span class="arithmatex">\(A\rightarrow D\)</span> recovers <span class="arithmatex">\(+1.4\)</span> logit-difference units;</li>
+<li>patching <span class="arithmatex">\(C\rightarrow D\)</span> alone changes <span class="arithmatex">\(-0.2\)</span> units;</li>
+<li>patching both changes <span class="arithmatex">\(+0.3\)</span> units;</li>
+<li>complement ablation with only <span class="arithmatex">\(A\rightarrow D\rightarrow Y\)</span> preserved
+  overshoots the full model badly.</li>
+</ul>
+<p>The negative edge is part of a calibration interaction. The EAP sign was useful,
+but ranking by absolute score and validating joint interventions produces a
+more faithful circuit.</p>
+<p>A complete analysis would then:</p>
+<ol>
+<li>test the graph on held-out prompts;</li>
+<li>compare zero and resample complement ablations;</li>
+<li>inspect whether <span class="arithmatex">\(C\)</span> represents a meaningful inhibitor or a confounded
+   feature;</li>
+<li>plot faithfulness across <span class="arithmatex">\(k\)</span> rather than choosing a favorable threshold;</li>
+<li>test whether an alternative <span class="arithmatex">\(B\)</span> path becomes active when <span class="arithmatex">\(A\)</span> is ablated.</li>
+</ol>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>Discovery scores generate a shortlist. Exact single- and joint-edge tests
+decide whether the shortlist supports the proposed computation.</p>
+</div>
+<h2 id="10-common-failure-modes">10. Common failure modes<a class="headerlink" href="#10-common-failure-modes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Graph ontology error:</strong> the true variable is distributed across the chosen
+  nodes or absent from the learned dictionary.</li>
+<li><strong>Corruption-defined circuit:</strong> a method discovers whatever distinguishes one
+  clean/corrupt construction, not the broader task.</li>
+<li><strong>Gradient saturation:</strong> important attention routes receive near-zero EAP
+  scores.</li>
+<li><strong>Cancellation:</strong> positive and negative paths vanish in aggregated gradients.</li>
+<li><strong>Independent ranking:</strong> synergistic or redundant edge sets are missed.</li>
+<li><strong>Threshold selection after inspection:</strong> sparsity and faithfulness are tuned
+  on the final evaluation set.</li>
+<li><strong>Ablation sensitivity:</strong> circuit quality reverses under zero, mean, or
+  resample baselines.</li>
+<li><strong>Soft-mask loopholes:</strong> fractional gates preserve behavior using a computation
+  that no discrete circuit implements.</li>
+<li><strong>Replacement-model confusion:</strong> a transcoder graph is treated as the exact
+  original-model mechanism.</li>
+<li><strong>Error-node deletion:</strong> unexplained reconstruction mass is hidden to make a
+  graph more legible.</li>
+<li><strong>Prompt-local overclaim:</strong> one attribution graph is generalized to a task or
+  model family.</li>
+<li><strong>Autolabel circularity:</strong> feature labels help select a circuit and are then
+  treated as independent confirmation.</li>
+<li><strong>Faithfulness metric shopping:</strong> only the metric/ablation that favors the
+  method is reported.</li>
+<li><strong>No exact validation:</strong> approximate attribution rankings are published as
+  causal circuits without interventions.</li>
+</ul>
+<h2 id="11-knowledge-check">11. Knowledge check<a class="headerlink" href="#11-knowledge-check" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Why must the node/edge graph be considered an assumption?</li>
+<li>What approximation does EAP make?</li>
+<li>Why can integrated gradients outperform a single local gradient?</li>
+<li>What problem do error nodes solve in sparse feature circuits?</li>
+<li>Why is a circuit with high sufficiency under mean ablation not automatically
+   faithful?</li>
+<li>What is a strong validation design after running a cheap discovery method?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+
+1. The algorithm only searches combinations of the supplied units and paths. A
+   distributed variable, missing hook, or poor feature dictionary cannot be
+   recovered by better ranking.
+2. It uses a first-order Taylor approximation of the metric change between
+   corrupt and clean edge activations, evaluated locally at a chosen run.
+3. It averages gradients along an interpolation path and can capture curvature
+   or leave a locally saturated point, though it remains path-dependent.
+4. They retain activation components not reconstructed by the sparse
+   dictionary, preventing unexplained computation from silently vanishing from
+   the graph.
+5. Mean ablation may be weak, retain task information, or create an easy
+   counterfactual. Sufficiency depends on the complement intervention and must
+   be tested under justified alternatives and held-out data.
+6. Freeze the top-$k$ candidates and predicted intervention signs, then run
+   exact node/edge and joint interventions on held-out templates with multiple
+   baselines. Also test complement sufficiency and graph stability.
+
+</details>
+
+<h2 id="12-practical-exercise-discovery-method-bake-off">12. Practical exercise: discovery-method bake-off<a class="headerlink" href="#12-practical-exercise-discovery-method-bake-off" title="Permanent link">&para;</a></h2>
+<p>On one small model and one task with matched clean/corrupt examples:</p>
+<ol>
+<li>Define a component graph and primary logit-difference metric.</li>
+<li>Split examples by template into exploration and validation sets.</li>
+<li>Run one cheap method, such as EAP or EAP-IG, to rank edges.</li>
+<li>Run either exact activation patching, ACDC, or mask optimization on the same
+   graph.</li>
+<li>Compare top-<span class="arithmatex">\(k\)</span> circuits across at least five values of <span class="arithmatex">\(k\)</span> using:</li>
+<li>faithfulness;</li>
+<li>necessity and complement sufficiency;</li>
+<li>runtime and peak memory;</li>
+<li>edge overlap/rank correlation;</li>
+<li>stability across bootstrap samples;</li>
+<li>exact held-out intervention precision.</li>
+<li>Repeat the final evaluation with a second ablation baseline.</li>
+<li>Investigate one false-positive and one false-negative edge from the cheap
+   method.</li>
+<li>Write a conclusion limited to the graph, task distribution, and
+   counterfactual actually tested.</li>
+</ol>
+<h2 id="canonical-primary-sources">Canonical primary sources<a class="headerlink" href="#canonical-primary-sources" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Conmy et al., <a href="https://arxiv.org/abs/2304.14997">Towards Automated Circuit Discovery for Mechanistic Interpretability</a></li>
+<li>Syed, Rager, and Conmy, <a href="https://arxiv.org/abs/2310.10348">Attribution Patching Outperforms Activation Patching</a></li>
+<li>Kramár et al., <a href="https://arxiv.org/abs/2403.00745">AtP*: An Efficient and Scalable Method for Localizing LLM Behaviour to Components</a></li>
+<li>Hanna, Pezzelle, and Belinkov, <a href="https://arxiv.org/abs/2403.17806">Have Faith in Faithfulness: Going Beyond Circuit Overlap</a></li>
+<li>Miller et al., <a href="https://arxiv.org/abs/2407.08734">Towards Evaluating the Faithfulness of Circuit Discovery Methods</a></li>
+<li>Marks et al., <a href="https://openreview.net/forum?id=I4e82CIDxv">Sparse Feature Circuits: Discovering and Editing Interpretable Causal Graphs in Language Models</a></li>
+<li>Ameisen et al., <a href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html">Circuit Tracing: Revealing Computational Graphs in Language Models</a></li>
+<li>Lindsey et al., <a href="https://transformer-circuits.pub/2025/attribution-graphs/biology.html">On the Biology of a Large Language Model</a></li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Built from a living systematic review · Course content licensed MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" target="_blank" rel="noopener" title="Course repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../javascripts/progress.js"></script>
+      
+    
+  </body>
+</html>

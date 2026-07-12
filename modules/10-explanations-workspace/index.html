@@ -1,0 +1,2590 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A comparative guide to logit, tuned, and Jacobian lenses, Natural Language Autoencoders, and Activation Oracles—and what each can honestly claim.">
+      
+      
+        <meta name="author" content="Danny0951 and contributors">
+      
+      
+        <link rel="canonical" href="https://danny0951.github.io/ai-safety-interpretability-circuits/modules/10-explanations-workspace/">
+      
+      
+        <link rel="prev" href="../09-attribution-graphs/">
+      
+      
+        <link rel="next" href="../11-steering/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>10 — Lenses, Natural-Language Explanations, and the Verbalizable Workspace - Inside the Model</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#10-lenses-natural-language-explanations-and-the-verbalizable-workspace" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Inside the Model" class="md-header__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Inside the Model
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              10 — Lenses, Natural-Language Explanations, and the Verbalizable Workspace
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Follow system theme"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Follow system theme" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../course-map/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Course Map
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../00-orientation/" class="md-tabs__link">
+          
+  
+  
+  Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../06-superposition/" class="md-tabs__link">
+          
+  
+  
+  Features & Frontier
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../11-steering/" class="md-tabs__link">
+          
+  
+  
+  Safety & Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../labs/" class="md-tabs__link">
+          
+  
+  
+  Labs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/evidence-ladder/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Full Research Catalog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Inside the Model" class="md-nav__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Inside the Model
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../course-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Course Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · How to Think Mechanistically
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-transformer-anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Transformer Anatomy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-circuit-algebra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Circuit Algebra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-causal-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · Causal Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-canonical-circuits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Canonical Circuits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-automated-circuit-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Automated Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features & Frontier
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features & Frontier
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-superposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Superposition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sparse-autoencoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Sparse Autoencoders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-transcoders-crosscoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Transcoders & Model Diffing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-attribution-graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 · Attribution Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Reading Model Thoughts
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Reading Model Thoughts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-logit-lens-reuse-the-models-output-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Logit lens: reuse the model's output coordinates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tuned-lens-learn-a-predictive-translator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Tuned lens: learn a predictive translator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-jacobian-lens-average-downstream-causal-transport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Jacobian lens: average downstream causal transport
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Jacobian lens: average downstream causal transport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#j-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        J-space
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-natural-language-autoencoders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Natural Language Autoencoders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-activation-oracles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Activation Oracles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-comparison-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Comparison table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-worked-example-a-hidden-intermediate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Worked example: a hidden intermediate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-a-triangulation-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. A triangulation protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-modes-and-research-traps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure modes and research traps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-preregister-a-lens-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: preregister a lens comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-and-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources and implementations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety & Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Safety & Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-steering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Steering & Editing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-safety-mechanisms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Safety Mechanisms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-auditing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Auditing Hidden Behavior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-research-rigor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Research That Survives Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-project-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Design a Novel Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/00-environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · Environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/01-activation-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Activations & Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/02-activation-patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Activation Patching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/03-sae-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · SAE Feature Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/04-circuit-tracer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Circuit Tracer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/05-jacobian-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Jacobian Lens & NLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/06-safety-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Harmless Safety Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/07-explanation-showdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Explanation Showdown
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/08-capstone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Capstone Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/evidence-ladder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Ladder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/method-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/formula-sheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formula Sheet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tool-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/reading-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/research-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Research Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-logit-lens-reuse-the-models-output-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Logit lens: reuse the model's output coordinates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tuned-lens-learn-a-predictive-translator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Tuned lens: learn a predictive translator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-jacobian-lens-average-downstream-causal-transport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Jacobian lens: average downstream causal transport
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Jacobian lens: average downstream causal transport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#j-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        J-space
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-natural-language-autoencoders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Natural Language Autoencoders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-activation-oracles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Activation Oracles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-comparison-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Comparison table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-worked-example-a-hidden-intermediate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Worked example: a hidden intermediate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-a-triangulation-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. A triangulation protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-modes-and-research-traps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure modes and research traps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-preregister-a-lens-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: preregister a lens comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-and-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources and implementations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="10-lenses-natural-language-explanations-and-the-verbalizable-workspace">10 — Lenses, Natural-Language Explanations, and the Verbalizable Workspace<a class="headerlink" href="#10-lenses-natural-language-explanations-and-the-verbalizable-workspace" title="Permanent link">&para;</a></h1>
+<p><strong>Thesis:</strong> Different explanation tools answer different questions: what an activation immediately decodes to, what predicts the final output, what can causally become verbalized, or what another model can say about it.</p>
+<h2 id="learning-objectives">Learning objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this module, you should be able to:</p>
+<ol>
+<li>Derive logit-lens, tuned-lens, and Jacobian-lens readouts and identify their assumptions.</li>
+<li>Explain why predicting the final distribution is not the same as exposing an intermediate computation.</li>
+<li>Define the Jacobian lens and the proposed sparse, non-negative <strong>J-space</strong>.</li>
+<li>Contrast Natural Language Autoencoders (NLAs) with supervised Activation Oracles (AOs).</li>
+<li>Build a triangulated explanation using readout, reconstruction, causal intervention, and hard-negative tests.</li>
+</ol>
+<div class="admonition intuition">
+<p class="admonition-title">Every instrument has a question built into it</p>
+<p>A microscope, an MRI, and an interview can all describe the same person, but they do not observe the same thing. A lens projects activations into vocabulary space; an NLA compresses them through text; an Activation Oracle answers a prompted question. Agreement is powerful. Disagreement is often the scientifically interesting result.</p>
+</div>
+<h2 id="1-logit-lens-reuse-the-models-output-coordinates">1. Logit lens: reuse the model's output coordinates<a class="headerlink" href="#1-logit-lens-reuse-the-models-output-coordinates" title="Permanent link">&para;</a></h2>
+<p>Let <span class="arithmatex">\(h_l\)</span> be the residual state at an intermediate layer and <span class="arithmatex">\(W_U\in\mathbb R^{|V|\times d}\)</span> the unembedding. The logit lens computes</p>
+<div class="arithmatex">\[
+p_l^{\text{logit}}
+=\operatorname{softmax}\!\left(W_U\operatorname{norm}(h_l)\right).
+\]</div>
+<p>It asks: <strong>if this state were already expressed in the final residual basis, which tokens would it favor?</strong> It is training-free, cheap, and often useful in later layers. Its assumption <span class="arithmatex">\(J_l=I\)</span>—that later blocks mostly preserve the relevant coordinates—can fail badly in early layers.</p>
+<p>Do not interpret its softmax as the model's actual counterfactual output distribution: downstream blocks were skipped, and intermediate states can have different statistics and geometry.</p>
+<h2 id="2-tuned-lens-learn-a-predictive-translator">2. Tuned lens: learn a predictive translator<a class="headerlink" href="#2-tuned-lens-learn-a-predictive-translator" title="Permanent link">&para;</a></h2>
+<p>A tuned lens fits a layer-specific affine translator <span class="arithmatex">\(T_l(h)=A_lh+b_l\)</span>, usually by minimizing divergence from the model's final output distribution:</p>
+<div class="arithmatex">\[
+p_l^{\text{tuned}}
+=\operatorname{softmax}\!\left(W_U\operatorname{norm}(A_lh_l+b_l)\right),
+\]</div>
+<div class="arithmatex">\[
+\min_{A_l,b_l}\;
+\mathbb E_x\left[
+D_{\mathrm{KL}}\!\left(p_L(x)\,\|\,p_l^{\text{tuned}}(x)\right)
+\right].
+\]</div>
+<p>This corrects layerwise coordinate mismatch and is excellent for asking <strong>what final prediction is already statistically recoverable?</strong> But its objective rewards skipping ahead. A learned bias or dataset prior can predict the answer while ignoring a transient intermediate represented in <span class="arithmatex">\(h_l\)</span>.</p>
+<pre class="mermaid"><code>flowchart LR
+    H[Intermediate state h_l] --&gt; LL[Logit lens: identity transport]
+    H --&gt; TL[Tuned lens: learned affine transport]
+    H --&gt; JL[Jacobian lens: average causal transport]
+    LL --&gt; U[Normalize and unembed]
+    TL --&gt; U
+    JL --&gt; U
+    U --&gt; V[Ranked vocabulary tokens]
+    L1[Question: already in final basis?] -.-&gt; LL
+    L2[Question: predicts final output?] -.-&gt; TL
+    L3[Question: disposed to be verbalized downstream?] -.-&gt; JL</code></pre>
+<h2 id="3-jacobian-lens-average-downstream-causal-transport">3. Jacobian lens: average downstream causal transport<a class="headerlink" href="#3-jacobian-lens-average-downstream-causal-transport" title="Permanent link">&para;</a></h2>
+<p>The Jacobian lens (J-lens) estimates how a perturbation at layer <span class="arithmatex">\(l\)</span>, position <span class="arithmatex">\(t\)</span>, affects final or penultimate residual states at present and future positions. Abstractly,</p>
+<div class="arithmatex">\[
+J_l
+=\mathbb E_{x,t,t'\ge t}
+\left[\frac{\partial h_{L,t'}}{\partial h_{l,t}}\right].
+\]</div>
+<p>It then reads</p>
+<div class="arithmatex">\[
+p_l^{J}
+=\operatorname{softmax}\!\left(
+W_U\operatorname{norm}(J_lh_l)
+\right).
+\]</div>
+<p>Each row of <span class="arithmatex">\(W_UJ_l\)</span> is a token-indexed direction in layer-<span class="arithmatex">\(l\)</span> activation space. The J-lens replaces a prompt-specific downstream computation with an <strong>average linear causal transport</strong> learned from a corpus. This trades exactness on one input for a fixed, reusable readout.</p>
+<p>The logit lens is the special approximation <span class="arithmatex">\(J_l=I\)</span>. Unlike the tuned lens, <span class="arithmatex">\(J_l\)</span> is derived from derivatives rather than optimized to predict the final answer.</p>
+<h3 id="j-space">J-space<a class="headerlink" href="#j-space" title="Permanent link">&para;</a></h3>
+<p>The 2026 global-workspace study defines J-space at a layer as states approximable by sparse non-negative combinations of token-indexed J-lens vectors. If <span class="arithmatex">\(v_{l,w}\)</span> is the direction for token <span class="arithmatex">\(w\)</span>, then</p>
+<div class="arithmatex">\[
+\mathcal J_{l,k}
+=\left\{
+\sum_{w\in S}c_wv_{l,w}:
+c_w\ge0,\;|S|\le k
+\right\}.
+\]</div>
+<p>This is a union of low-dimensional cones, not generally a linear subspace. In the reported models, a small number of vectors—often <span class="arithmatex">\(k\le25\)</span>—captured a verbalizable component that was causally involved in report, planning, and some flexible reasoning, while accounting for less than 10% of total activation variance. Those are empirical findings for studied models, not universal constants.</p>
+<div class="admonition warning">
+<p class="admonition-title">Workspace is a functional claim, not a consciousness meter</p>
+<p>The reported “global workspace” analogy concerns functional properties: reportability, persistence, control, broad routing, and flexible use. It does not establish phenomenal consciousness, subjective experience, or a complete readout of model cognition.</p>
+</div>
+<pre class="mermaid"><code>flowchart TD
+    C[Corpus of ordinary contexts] --&gt; G[Backpropagate future residual effects]
+    G --&gt; AVG[Average Jacobian J_l]
+    H[New activation h_l] --&gt; M[Transport J_l h_l]
+    AVG --&gt; M
+    M --&gt; U[Model unembedding W_U]
+    U --&gt; TOK[Ranked verbalizable tokens]
+    TOK --&gt; SP[Sparse non-negative decomposition]
+    SP --&gt; JS[J-space component]
+    H --&gt; RES[Non-J-space residual]
+    JS --&gt; RES</code></pre>
+<h2 id="4-natural-language-autoencoders">4. Natural Language Autoencoders<a class="headerlink" href="#4-natural-language-autoencoders" title="Permanent link">&para;</a></h2>
+<p>An NLA uses text itself as an information bottleneck. Given a target activation <span class="arithmatex">\(h\)</span>:</p>
+<div class="arithmatex">\[
+s\sim\operatorname{AV}_{\phi}(h),
+\qquad
+\hat h=\operatorname{AR}_{\psi}(s),
+\]</div>
+<p>where the activation verbalizer (AV) produces an explanation <span class="arithmatex">\(s\)</span> and the activation reconstructor (AR) maps only that explanation back to a vector. With normalized vectors,</p>
+<div class="arithmatex">\[
+\lVert\bar h-\bar{\hat h}\rVert_2^2
+=2\left(1-\cos(h,\hat h)\right).
+\]</div>
+<p>The released method warm-starts the AV/AR on a proxy summarization task and then jointly improves reconstruction using reinforcement learning. It is <strong>unsupervised with respect to explanation labels</strong>: no ground-truth description of <span class="arithmatex">\(h\)</span> is supplied. Reconstruction pressure makes the text informative, but does not guarantee literal truth.</p>
+<p>NLA strengths:</p>
+<ul>
+<li>expressive, readable descriptions rather than a fixed token or feature inventory;</li>
+<li>can surface high-level, unverbalized hypotheses during audits;</li>
+<li>edited text can be reconstructed into a candidate steering direction;</li>
+<li>no researcher-chosen concept labels are required for training.</li>
+</ul>
+<p>NLA risks:</p>
+<ul>
+<li><strong>confabulation:</strong> specific details can be false even when the theme is informative;</li>
+<li><strong>steganography:</strong> AV and AR could communicate through unreadable or subtle codes;</li>
+<li><strong>input inversion:</strong> the explanation may mostly recover nearby text;</li>
+<li><strong>layer sensitivity:</strong> a checkpoint trained at one layer can be incoherent elsewhere;</li>
+<li>high training and autoregressive inference cost.</li>
+</ul>
+<h2 id="5-activation-oracles">5. Activation Oracles<a class="headerlink" href="#5-activation-oracles" title="Permanent link">&para;</a></h2>
+<p>An Activation Oracle is trained to answer arbitrary natural-language questions about injected activations. Schematically,</p>
+<div class="arithmatex">\[
+\operatorname{AO}_{\theta}(q;h_1,\ldots,h_n)
+\longrightarrow \text{natural-language answer}.
+\]</div>
+<p>Released AOs inject norm-matched activation vectors into specially marked token positions near the oracle model's input and train on a diverse supervised mixture: system-prompt questions, classification, and self-supervised context prediction.</p>
+<p>An AO is query-dependent and supervised; an NLA learns a round-trip text bottleneck without explanation labels. An AO may answer “What secret is represented?” directly, while an NLA emits a general description from which a researcher infers a hypothesis.</p>
+<div class="admonition warning">
+<p class="admonition-title">Expressivity can create evidence</p>
+<p>A powerful verbalizer may combine weak clues into an answer the target model never explicitly represented, or confabulate a plausible answer from its own knowledge. Use shuffled activations, wrong-layer activations, prompt-only baselines, and causal corroboration.</p>
+</div>
+<pre class="mermaid"><code>flowchart LR
+    H[Target activation] --&gt; NLA1[NLA verbalizer]
+    NLA1 --&gt; TEXT[Free-text bottleneck]
+    TEXT --&gt; NLA2[NLA reconstructor]
+    NLA2 --&gt; HR[Reconstructed activation]
+    H --&gt; AO[Activation Oracle]
+    Q[Researcher question] --&gt; AO
+    AO --&gt; ANS[Free-text answer]
+    H --&gt; SAE[Sparse autoencoder]
+    SAE --&gt; Z[Sparse fixed inventory]
+    H --&gt; LENS[Vocabulary lens]
+    LENS --&gt; TOK[Ranked tokens]</code></pre>
+<h2 id="6-comparison-table">6. Comparison table<a class="headerlink" href="#6-comparison-table" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Training</th>
+<th>Output</th>
+<th>Main question</th>
+<th>Main failure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logit lens</td>
+<td>None</td>
+<td>Vocabulary ranking</td>
+<td>What is already aligned with the output basis?</td>
+<td>Early-layer basis mismatch</td>
+</tr>
+<tr>
+<td>Tuned lens</td>
+<td>Supervised to final distribution</td>
+<td>Vocabulary distribution</td>
+<td>What final output is predictable here?</td>
+<td>Skips intermediates; bias can ignore <span class="arithmatex">\(h_l\)</span></td>
+</tr>
+<tr>
+<td>Jacobian lens</td>
+<td>Corpus-averaged Jacobians</td>
+<td>Vocabulary ranking/J-space</td>
+<td>What is this state disposed to verbalize downstream?</td>
+<td>Average linearization misses context-specific/nonlinear content</td>
+</tr>
+<tr>
+<td>SAE</td>
+<td>Unsupervised reconstruction + sparsity</td>
+<td>Sparse feature code</td>
+<td>Which reusable linear features reconstruct <span class="arithmatex">\(h\)</span>?</td>
+<td>Non-canonical dictionaries and reconstruction error</td>
+</tr>
+<tr>
+<td>NLA</td>
+<td>SFT warm start + reconstruction RL</td>
+<td>Free text</td>
+<td>What text preserves information in <span class="arithmatex">\(h\)</span>?</td>
+<td>Confabulation/steganography/cost</td>
+</tr>
+<tr>
+<td>Activation Oracle</td>
+<td>Supervised activation QA</td>
+<td>Free-text answer</td>
+<td>How does a trained interpreter answer query <span class="arithmatex">\(q\)</span> about <span class="arithmatex">\(h\)</span>?</td>
+<td>Computes or guesses beyond target representation</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-worked-example-a-hidden-intermediate">7. Worked example: a hidden intermediate<a class="headerlink" href="#7-worked-example-a-hidden-intermediate" title="Permanent link">&para;</a></h2>
+<p>Consider the prompt:</p>
+<blockquote>
+<p>The country shaped like a boot uses the currency</p>
+</blockquote>
+<p>Suppose the model must first infer <strong>Italy</strong>, then retrieve <strong>euro</strong>. The following are hypothetical but diagnostic outcomes at a middle layer:</p>
+<ul>
+<li>The <strong>logit lens</strong> shows noisy token fragments because the state is not yet in final coordinates.</li>
+<li>The <strong>tuned lens</strong> already ranks “euro” highly because its learned predictor exploits dataset regularities.</li>
+<li>The <strong>J-lens</strong> ranks “Italy,” suggesting a disposition to verbalize the intermediate after average downstream transport.</li>
+<li>An <strong>NLA</strong> says “identifying the European country implied by the shape clue.”</li>
+<li>An <strong>AO</strong>, asked “Which country is represented?”, answers “Italy.”</li>
+</ul>
+<p>Agreement makes “Italy is represented” plausible. It still does not prove Italy mediates the answer. A causal test swaps or removes the Italy-associated direction at the relevant layer and measures</p>
+<div class="arithmatex">\[
+\Delta_{\text{logit}}
+=\operatorname{logit}(\text{euro})
+-\operatorname{logit}(\text{dollar}).
+\]</div>
+<p>Strong evidence would be:</p>
+<ol>
+<li>the Italy readout appears after the clue is integrated and before euro is retrieved;</li>
+<li>swapping Italy for Japan redirects downstream country/currency content predictably;</li>
+<li>the effect survives held-out clue wordings;</li>
+<li>logit/J-lens controls and NLA/AO prompt-only controls do not produce the same result;</li>
+<li>a direct patch of the candidate state mediates the behavioral change.</li>
+</ol>
+<h2 id="8-a-triangulation-protocol">8. A triangulation protocol<a class="headerlink" href="#8-a-triangulation-protocol" title="Permanent link">&para;</a></h2>
+<p>For any free-text or vocabulary explanation:</p>
+<ol>
+<li><strong>Localize:</strong> specify layer, token position, extraction convention, and model revision.</li>
+<li><strong>Compare instruments:</strong> run at least one cheap lens and one structurally different method.</li>
+<li><strong>Use hard negatives:</strong> prompts with the same words but a different latent answer.</li>
+<li><strong>Run nulls:</strong> shuffled activations, wrong layers/positions, random directions, and text-only interpreter prompts.</li>
+<li><strong>Test stability:</strong> paraphrases, samples, seeds, and nearby positions.</li>
+<li><strong>Intervene:</strong> make a signed, preregistered prediction for a logit difference.</li>
+<li><strong>Report disagreement:</strong> it can distinguish predictive, verbalizable, reconstructive, and causal content.</li>
+</ol>
+<h2 id="failure-modes-and-research-traps">Failure modes and research traps<a class="headerlink" href="#failure-modes-and-research-traps" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Calling every high-ranked lens token a “thought.”</li>
+<li>Treating tuned-lens prediction as evidence for a transient intermediate.</li>
+<li>Assuming a corpus-averaged Jacobian is faithful for every prompt.</li>
+<li>Ignoring normalization choices when comparing lens logits.</li>
+<li>Reading the J-space as an exhaustive decomposition; most variance can lie outside it.</li>
+<li>Treating NLA prose as a transcript rather than a lossy reconstruction code.</li>
+<li>Prompting an AO until it produces the hoped-for explanation.</li>
+<li>Using the same language model to generate and judge explanations without independent checks.</li>
+<li>Confusing reportability with causal use, or causal use with consciousness.</li>
+<li>Comparing tools on different layers, positions, models, or output targets.</li>
+</ul>
+<h2 id="knowledge-check">Knowledge check<a class="headerlink" href="#knowledge-check" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p>What assumption turns the Jacobian-lens equation into the logit lens?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>Setting the downstream transport <span class="arithmatex">\(J_l\)</span> to the identity, so the intermediate state is treated as already expressed in final-layer coordinates.
+</details></p>
+</li>
+<li>
+<p>Why can a tuned lens be a better final-output predictor but a worse intermediate-computation viewer?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>Its training objective rewards matching the final output distribution. It can exploit biases and correlations that jump directly to the answer rather than expose a transient state used during computation.
+</details></p>
+</li>
+<li>
+<p>What constrains an NLA explanation if no ground-truth explanation label is used?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>The AR must reconstruct the original activation direction from the AV's text. This information bottleneck encourages informative text, but does not ensure that every literal detail is true or human-readable.
+</details></p>
+</li>
+<li>
+<p>Why is an Activation Oracle not a mechanistic explanation by itself?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>It is another expressive model trained to answer questions about activations. It can extract, combine, or guess information without explaining how the target network computes or uses it.
+</details></p>
+</li>
+</ol>
+<h2 id="exercise-preregister-a-lens-comparison">Exercise: preregister a lens comparison<a class="headerlink" href="#exercise-preregister-a-lens-comparison" title="Permanent link">&para;</a></h2>
+<p>Choose a prompt family with an unspoken intermediate, such as multi-hop geography, arithmetic, a planned rhyme, or a latent safety classification.</p>
+<ol>
+<li>Define the intermediate and final contrast tokens.</li>
+<li>Predict their layer-by-layer ranks under logit, tuned, and Jacobian lenses.</li>
+<li>Choose the exact token position and normalization convention.</li>
+<li>Add a hard-negative prompt with similar surface words.</li>
+<li>Define a J-lens swap or activation-patching intervention and its signed logit-difference prediction.</li>
+<li>State what NLA/AO output would count as corroboration and what null outputs would falsify it.</li>
+</ol>
+<p>Do not inspect the focal prompt before recording predictions; use separate development examples.</p>
+<h2 id="primary-sources-and-implementations">Primary sources and implementations<a class="headerlink" href="#primary-sources-and-implementations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>nostalgebraist, <a href="https://www.lesswrong.com/posts/AcKRB8wDpdaN6v6ru/interpreting-gpt-the-logit-lens"><em>Interpreting GPT: The Logit Lens</em></a> (2020; original research post).</li>
+<li>Belrose et al., <a href="https://arxiv.org/abs/2303.08112"><em>Eliciting Latent Predictions from Transformers with the Tuned Lens</em></a> and <a href="https://github.com/AlignmentResearch/tuned-lens">code</a> (2023).</li>
+<li>Gurnee et al., <a href="https://transformer-circuits.pub/2026/workspace/index.html"><em>Verbalizable Representations Form a Global Workspace in Language Models</em></a> and <a href="https://github.com/anthropics/jacobian-lens">Jacobian Lens code</a> (2026).</li>
+<li>Fraser-Taliente, Kantamneni, Ong et al., <a href="https://transformer-circuits.pub/2026/nla/index.html"><em>Natural Language Autoencoders Produce Unsupervised Explanations of LLM Activations</em></a>, <a href="https://github.com/kitft/natural_language_autoencoders">training code</a>, and <a href="https://github.com/kitft/nla-inference">inference code</a> (2026).</li>
+<li>Karvonen et al., <a href="https://arxiv.org/abs/2512.15674"><em>Activation Oracles</em></a>, <a href="https://alignment.anthropic.com/2025/activation-oracles/">research post</a>, and <a href="https://github.com/adamkarvonen/activation_oracles">code</a> (2025).</li>
+<li>Ghandeharioun et al., <a href="https://arxiv.org/abs/2401.06102"><em>Patchscopes: A Unifying Framework for Inspecting Hidden Representations of Language Models</em></a> (2024).</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Built from a living systematic review · Course content licensed MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" target="_blank" rel="noopener" title="Course repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../javascripts/progress.js"></script>
+      
+    
+  </body>
+</html>

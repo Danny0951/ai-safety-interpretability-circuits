@@ -1,0 +1,2527 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sparse replacement models for computations across layers and models, from MLP transcoders to cross-architecture behavioral diffing.">
+      
+      
+        <meta name="author" content="Danny0951 and contributors">
+      
+      
+        <link rel="canonical" href="https://danny0951.github.io/ai-safety-interpretability-circuits/modules/08-transcoders-crosscoders/">
+      
+      
+        <link rel="prev" href="../07-sparse-autoencoders/">
+      
+      
+        <link rel="next" href="../09-attribution-graphs/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>08 — Transcoders, Crosscoders, and Model Diffing - Inside the Model</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#08-transcoders-crosscoders-and-model-diffing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Inside the Model" class="md-header__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Inside the Model
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              08 — Transcoders, Crosscoders, and Model Diffing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Follow system theme"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Follow system theme" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../course-map/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Course Map
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../00-orientation/" class="md-tabs__link">
+          
+  
+  
+  Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../06-superposition/" class="md-tabs__link">
+          
+  
+  
+  Features & Frontier
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../11-steering/" class="md-tabs__link">
+          
+  
+  
+  Safety & Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../labs/" class="md-tabs__link">
+          
+  
+  
+  Labs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/evidence-ladder/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Full Research Catalog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Inside the Model" class="md-nav__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Inside the Model
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../course-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Course Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · How to Think Mechanistically
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-transformer-anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Transformer Anatomy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-circuit-algebra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Circuit Algebra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-causal-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · Causal Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-canonical-circuits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Canonical Circuits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-automated-circuit-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Automated Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features & Frontier
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features & Frontier
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-superposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Superposition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sparse-autoencoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Sparse Autoencoders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Transcoders & Model Diffing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Transcoders & Model Diffing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-from-state-reconstruction-to-computation-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. From state reconstruction to computation prediction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-cross-layer-transcoders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Cross-layer transcoders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-crosscoders-for-model-diffing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Crosscoders for model diffing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Crosscoders for model diffing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#base-versus-fine-tune" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Base versus fine-tune
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-architecture-diffing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-architecture diffing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-worked-example-a-feature-introduced-by-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Worked example: a feature introduced by fine-tuning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-validation-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Validation matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-modes-and-research-traps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure modes and research traps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-design-a-two-model-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: design a two-model diff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-and-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources and implementations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-attribution-graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 · Attribution Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-explanations-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Reading Model Thoughts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety & Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Safety & Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-steering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Steering & Editing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-safety-mechanisms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Safety Mechanisms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-auditing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Auditing Hidden Behavior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-research-rigor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Research That Survives Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-project-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Design a Novel Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/00-environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · Environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/01-activation-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Activations & Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/02-activation-patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Activation Patching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/03-sae-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · SAE Feature Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/04-circuit-tracer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Circuit Tracer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/05-jacobian-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Jacobian Lens & NLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/06-safety-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Harmless Safety Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/07-explanation-showdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Explanation Showdown
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/08-capstone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Capstone Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/evidence-ladder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Ladder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/method-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/formula-sheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formula Sheet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tool-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/reading-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/research-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Research Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-from-state-reconstruction-to-computation-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. From state reconstruction to computation prediction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-cross-layer-transcoders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Cross-layer transcoders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-crosscoders-for-model-diffing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Crosscoders for model diffing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Crosscoders for model diffing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#base-versus-fine-tune" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Base versus fine-tune
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-architecture-diffing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-architecture diffing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-worked-example-a-feature-introduced-by-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Worked example: a feature introduced by fine-tuning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-validation-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Validation matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-modes-and-research-traps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure modes and research traps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-design-a-two-model-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: design a two-model diff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-and-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources and implementations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="08-transcoders-crosscoders-and-model-diffing">08 — Transcoders, Crosscoders, and Model Diffing<a class="headerlink" href="#08-transcoders-crosscoders-and-model-diffing" title="Permanent link">&para;</a></h1>
+<p><strong>Thesis:</strong> Transcoders and crosscoders move dictionary learning from “what state is present?” toward “what computation or model difference produced the state?”</p>
+<h2 id="learning-objectives">Learning objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this module, you should be able to:</p>
+<ol>
+<li>Contrast an SAE's reconstruction target with a transcoder's input-to-output prediction target.</li>
+<li>Describe per-layer transcoders, cross-layer transcoders, acausal crosscoders, and weakly causal crosscoders.</li>
+<li>Formulate a joint dictionary for comparing a base model with a fine-tune or two different architectures.</li>
+<li>Classify shared, model-exclusive, and changed features without confusing decoder geometry with behavioral causality.</li>
+<li>Design validation that includes reconstruction-error nodes, held-out prompts, and targeted interventions.</li>
+</ol>
+<div class="admonition intuition">
+<p class="admonition-title">Replace a dense calculation with sparse named steps</p>
+<p>An SAE compresses a snapshot. A transcoder instead watches what enters a dense MLP and predicts what the MLP writes back, using a sparse hidden layer. A crosscoder extends the same idea across several layers or models so one feature can describe a persistent thread or a difference.</p>
+</div>
+<h2 id="1-from-state-reconstruction-to-computation-prediction">1. From state reconstruction to computation prediction<a class="headerlink" href="#1-from-state-reconstruction-to-computation-prediction" title="Permanent link">&para;</a></h2>
+<p>For a transformer block,</p>
+<div class="arithmatex">\[
+x_{l+1}=x_l+a_l+m_l,
+\]</div>
+<p>an SAE at one site learns <span class="arithmatex">\(x\mapsto\hat x\)</span>. A per-layer transcoder learns the MLP map <span class="arithmatex">\(x_l^{\text{mlp-in}}\mapsto m_l\)</span>:</p>
+<div class="arithmatex">\[
+z_l=\operatorname{TopK}(W^{(l)}_{\text{enc}}x_l^{\text{mlp-in}}+b^{(l)}_{\text{enc}}),
+\]</div>
+<div class="arithmatex">\[
+\hat m_l=W^{(l)}_{\text{dec}}z_l+b^{(l)}_{\text{dec}},
+\qquad
+e_l=m_l-\hat m_l.
+\]</div>
+<p>The replacement model writes <span class="arithmatex">\(\hat m_l+e_l\)</span> when exact agreement with the original forward pass is required. Each active transcoder feature has:</p>
+<ul>
+<li>an encoder direction describing when it activates;</li>
+<li>an activation <span class="arithmatex">\(z_{l,i}\)</span> on this prompt;</li>
+<li>a decoder direction describing what it writes;</li>
+<li>downstream connections that can be computed through later linearized operations.</li>
+</ul>
+<p>This asymmetry is valuable: an SAE decoder says “this direction reconstructs the current state,” while a transcoder decoder says “when this condition is detected, this direction approximates the MLP's output.”</p>
+<pre class="mermaid"><code>flowchart TB
+    X[Activation x at one site]
+    X --&gt; SAE[SAE]
+    SAE --&gt; XR[Reconstruct the same x]
+    MI[MLP input x_l] --&gt; TC[Per-layer transcoder]
+    TC --&gt; MO[Predict MLP write m_l]
+    LS[Activations from several layers] --&gt; CC[Crosscoder]
+    CC --&gt; LR[Reconstruct several layers]
+    PA[Model A activation] --&gt; MDC[Model-diff crosscoder]
+    PB[Model B activation] --&gt; MDC
+    MDC --&gt; RA[Reconstruct A]
+    MDC --&gt; RB[Reconstruct B]</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">A replacement model is not the original model</p>
+<p>A low-error transcoder can still implement a shortcut unlike the dense MLP's internal mechanism. Keep <span class="arithmatex">\(e_l\)</span> visible, compare original and replacement behavior, and validate proposed nodes by intervening in the original computation where possible.</p>
+</div>
+<h2 id="2-cross-layer-transcoders">2. Cross-layer transcoders<a class="headerlink" href="#2-cross-layer-transcoders" title="Permanent link">&para;</a></h2>
+<p>A model may compute a feature once and carry it through many residual-stream layers. Separate layerwise SAEs can rediscover it many times, producing chains of nearly duplicate nodes. A weakly causal cross-layer transcoder (CLT) assigns a feature to an encoder layer <span class="arithmatex">\(s\)</span> and lets it write to its own and later target layers:</p>
+<div class="arithmatex">\[
+z_{s}=\phi(E_s x_s+b_s),
+\]</div>
+<div class="arithmatex">\[
+\hat m_t= b_t+\sum_{s\le t}D_{s\rightarrow t}z_s,
+\qquad t=0,\ldots,L-1.
+\]</div>
+<p>The causal mask <span class="arithmatex">\(s\le t\)</span> prevents a feature from reading the future to explain the past. One active feature can therefore account for a lifecycle across layers, and an attribution graph can jump over uninteresting persistence edges.</p>
+<p>An <strong>acausal crosscoder</strong> reads from and reconstructs several layers jointly:</p>
+<div class="arithmatex">\[
+z=\phi\!\left(\sum_{l\in\mathcal L}E_lx_l+b\right),
+\qquad
+\hat x_l=D_lz+b_l.
+\]</div>
+<p>It is excellent for discovering shared cross-layer structure but cannot itself support a forward-causal story: its code may depend on later activations.</p>
+<pre class="mermaid"><code>flowchart LR
+    X2[x at layer 2] --&gt; F[Persistent feature z]
+    F --&gt; D2[Write/reconstruct layer 2]
+    F --&gt; D3[Write/reconstruct layer 3]
+    F --&gt; D4[Write/reconstruct layer 4]
+    F --&gt; D5[Write/reconstruct layer 5]
+    X4[x at layer 4] -. forbidden future-to-past read .-&gt; D2
+    E2[Encoder assigned to layer 2] --&gt; F</code></pre>
+<p>The mask creates an interpretable ordering, but not a proof that the original network uses the same factorization. Two computations can reconstruct identical layer states while taking different internal paths.</p>
+<h2 id="3-crosscoders-for-model-diffing">3. Crosscoders for model diffing<a class="headerlink" href="#3-crosscoders-for-model-diffing" title="Permanent link">&para;</a></h2>
+<p>Let models <span class="arithmatex">\(A\)</span> and <span class="arithmatex">\(B\)</span> process aligned examples. A joint crosscoder can learn a shared code and model-specific decoders:</p>
+<div class="arithmatex">\[
+z=\phi(E_Ax^A+E_Bx^B+b),
+\]</div>
+<div class="arithmatex">\[
+\hat x^A=D_Az+b_A,
+\qquad
+\hat x^B=D_Bz+b_B.
+\]</div>
+<p>For feature <span class="arithmatex">\(i\)</span>, compare decoder columns <span class="arithmatex">\(d_i^A,d_i^B\)</span>, activation distributions, and downstream behavior:</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Geometric signature</th>
+<th>Candidate interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared</td>
+<td>Both decoder norms large; aligned functional effects</td>
+<td>Common representation</td>
+</tr>
+<tr>
+<td>A-exclusive</td>
+<td><span class="arithmatex">\(\lVert d_i^A\rVert\)</span> large, <span class="arithmatex">\(\lVert d_i^B\rVert\)</span> small</td>
+<td>Content emphasized only in A</td>
+</tr>
+<tr>
+<td>B-exclusive</td>
+<td>Reverse of above</td>
+<td>Content introduced or emphasized in B</td>
+</tr>
+<tr>
+<td>Changed</td>
+<td>Both present but directions/effects differ</td>
+<td>Reorganized representation</td>
+</tr>
+<tr>
+<td>Dormant</td>
+<td>Decoders exist but activation is rare</td>
+<td>Insufficient evidence</td>
+</tr>
+</tbody>
+</table>
+<p>Decoder norm is not a perfect exclusivity score. A model can use a rescaled direction, a split feature, or a different layer. Dedicated Feature Crosscoders (DFCs) add dedicated feature groups and training structure intended to make genuinely model-specific content easier to isolate.</p>
+<h3 id="base-versus-fine-tune">Base versus fine-tune<a class="headerlink" href="#base-versus-fine-tune" title="Permanent link">&para;</a></h3>
+<p>Base/fine-tune comparison is easiest when tokenization, architecture, and width match. Use identical prompts and aligned token positions. Candidate fine-tune features can reveal newly emphasized refusal, persona, domain, or tool-use computations.</p>
+<h3 id="cross-architecture-diffing">Cross-architecture diffing<a class="headerlink" href="#cross-architecture-diffing" title="Permanent link">&para;</a></h3>
+<p>When widths, layer counts, or tokenizers differ, crosscoders provide separate encoders/decoders for each model and learn a shared sparse code in feature space. Alignment still requires choices:</p>
+<ul>
+<li>match semantic examples rather than raw hidden coordinates;</li>
+<li>decide which relative depths or sites correspond;</li>
+<li>handle tokenization with word/span pooling or separately aligned positions;</li>
+<li>normalize each model's activations and reconstruction loss;</li>
+<li>verify that “exclusive” does not merely mean “missed by the other decoder.”</li>
+</ul>
+<pre class="mermaid"><code>flowchart TD
+    P[Matched prompt corpus] --&gt; A[Run model A]
+    P --&gt; B[Run model B]
+    A --&gt; XA[Selected activations xA]
+    B --&gt; XB[Selected activations xB]
+    XA --&gt; J[Joint sparse code z]
+    XB --&gt; J
+    J --&gt; SA[Shared features]
+    J --&gt; UA[A-exclusive candidates]
+    J --&gt; UB[B-exclusive candidates]
+    UA --&gt; VA[Intervene in A and matched controls]
+    UB --&gt; VB[Intervene in B and matched controls]
+    SA --&gt; VS[Test functional correspondence]
+    VA --&gt; R[Behavioral diff report]
+    VB --&gt; R
+    VS --&gt; R</code></pre>
+<h2 id="4-worked-example-a-feature-introduced-by-fine-tuning">4. Worked example: a feature introduced by fine-tuning<a class="headerlink" href="#4-worked-example-a-feature-introduced-by-fine-tuning" title="Permanent link">&para;</a></h2>
+<p>Suppose a two-feature crosscoder reconstructs aligned two-dimensional states from a base model <span class="arithmatex">\(A\)</span> and a fine-tuned model <span class="arithmatex">\(B\)</span>. Feature 1 has</p>
+<div class="arithmatex">\[
+d_1^A=(1,0),\qquad d_1^B=(0.98,0.05),
+\]</div>
+<p>and activates on factual entity prompts. It is plausibly shared. Feature 2 has</p>
+<div class="arithmatex">\[
+d_2^A=(0.02,0),\qquad d_2^B=(0,1),
+\]</div>
+<p>and activates on unsafe-request prompts after safety fine-tuning. On one prompt, <span class="arithmatex">\(z_1=3,z_2=2\)</span>, so</p>
+<div class="arithmatex">\[
+\hat x^A=(3.04,0),\qquad
+\hat x^B=(2.94,2.15).
+\]</div>
+<p>Feature 2 is a strong B-exclusive candidate. A valid interpretation still requires four tests:</p>
+<ol>
+<li><strong>Semantic:</strong> held-out top activations distinguish unsafe requests from hard benign negatives.</li>
+<li><strong>Fidelity:</strong> reconstruction and error terms preserve the fine-tuned model's refusal logit difference.</li>
+<li><strong>Causality:</strong> error-preserving ablation of feature 2 reduces refusal more than frequency-matched features.</li>
+<li><strong>Specificity:</strong> ablation does not broadly destroy syntax, fluency, or unrelated refusals.</li>
+</ol>
+<p>If feature 2's decoder norm is large but ablation has no behavioral effect, it is a representational difference, not yet the refusal mechanism.</p>
+<div class="admonition example">
+<p class="admonition-title">A useful null</p>
+<p>Train the same crosscoder after randomly permuting the pairing between model-A and model-B examples. Shared semantic features and cross-model correspondence should degrade. If exclusivity scores remain unchanged, they may reflect norm or architecture artifacts rather than aligned model differences.</p>
+</div>
+<h2 id="5-validation-matrix">5. Validation matrix<a class="headerlink" href="#5-validation-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Required test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Feature persists across layers</td>
+<td>Activation correspondence plus causal/weakly causal masking</td>
+</tr>
+<tr>
+<td>Transcoder feature mediates an MLP computation</td>
+<td>Original-versus-replacement fidelity, error accounting, intervention</td>
+</tr>
+<tr>
+<td>Feature is shared across models</td>
+<td>Held-out co-activation and matched functional effect, not decoder cosine alone</td>
+</tr>
+<tr>
+<td>Feature is model-exclusive</td>
+<td>Reconstruction in both models, permutation null, alternative dictionary, causal specificity</td>
+</tr>
+<tr>
+<td>Fine-tuning created a behavior</td>
+<td>Base/fine-tune behavioral contrast plus mediation by the candidate feature</td>
+</tr>
+<tr>
+<td>Cross-architecture difference is meaningful</td>
+<td>Robustness to layer/token alignment and per-model normalization</td>
+</tr>
+</tbody>
+</table>
+<h2 id="failure-modes-and-research-traps">Failure modes and research traps<a class="headerlink" href="#failure-modes-and-research-traps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Shortcut replacement:</strong> the sparse surrogate predicts outputs through a simpler route than the original MLP.</li>
+<li><strong>Error-node blindness:</strong> a small residual error carries the target logit difference.</li>
+<li><strong>Acausal leakage:</strong> a global crosscoder reads a later consequence and labels it as an earlier cause.</li>
+<li><strong>Feature splitting/merging:</strong> one model's single feature corresponds to several in the other.</li>
+<li><strong>Norm-based false exclusivity:</strong> architecture or normalization scale makes one decoder look absent.</li>
+<li><strong>Dataset blindness:</strong> the comparison corpus never triggers the actual behavioral difference.</li>
+<li><strong>Token misalignment:</strong> different tokenizers shift the supposedly paired states.</li>
+<li><strong>Layer cherry-picking:</strong> an effect declared absent at one layer exists at another.</li>
+<li><strong>Representation–mechanism confusion:</strong> a decodable difference need not cause output differences.</li>
+<li><strong>Fine-tune transfer assumptions:</strong> a dictionary trained on a base model can lose fidelity after substantial post-training.</li>
+</ul>
+<h2 id="knowledge-check">Knowledge check<a class="headerlink" href="#knowledge-check" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p>What is the key target difference between an SAE and a per-layer transcoder?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>An SAE reconstructs the activation it reads. A transcoder reads the MLP input and predicts the MLP output/write, giving its sparse units an input-condition and output-effect interpretation.
+</details></p>
+</li>
+<li>
+<p>Why can an acausal crosscoder not directly establish a circuit's temporal ordering?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>Its code can read from later layers while reconstructing earlier ones. It may explain a past state using information that was available only in the future.
+</details></p>
+</li>
+<li>
+<p>Is a near-zero decoder norm in model A sufficient to call a feature B-exclusive?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>No. The effect may be rescaled, split, represented at another site, missed by reconstruction, or induced by normalization. Use held-out activation, permutation and alternative-dictionary controls, and causal tests.
+</details></p>
+</li>
+<li>
+<p>Why retain transcoder error nodes in an attribution graph?</p>
+<p><details>
+<summary>Answer</summary></p>
+<p>They account for computation the sparse replacement did not reconstruct. Omitting them can make a visually complete graph while silently excluding behaviorally important signal.
+</details></p>
+</li>
+</ol>
+<h2 id="exercise-design-a-two-model-diff">Exercise: design a two-model diff<a class="headerlink" href="#exercise-design-a-two-model-diff" title="Permanent link">&para;</a></h2>
+<p>Choose either a base/fine-tune pair or two similarly capable open models.</p>
+<ol>
+<li>Define one measurable behavioral difference using a logit difference and held-out prompts.</li>
+<li>Specify paired activation sites and how tokens/layers will be aligned.</li>
+<li>Define shared and exclusive scores using decoder norms, cosine similarity, and activation statistics.</li>
+<li>Add a shuffled-pair null and an alternative-site analysis.</li>
+<li>Design an error-preserving intervention on the five strongest exclusive candidates.</li>
+<li>Precommit to a mediation criterion and a specificity control.</li>
+</ol>
+<p>Finish with two interpretations of the same result: one representational and one mechanistic. State what extra evidence separates them.</p>
+<h2 id="primary-sources-and-implementations">Primary sources and implementations<a class="headerlink" href="#primary-sources-and-implementations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Dunefsky, Chlenski, and Nanda, <a href="https://arxiv.org/abs/2406.11944"><em>Transcoders Find Interpretable LLM Feature Circuits</em></a> and <a href="https://github.com/jacobdunefsky/transcoder_circuits">code</a> (2024).</li>
+<li>Lindsey et al., <a href="https://transformer-circuits.pub/2024/crosscoders/index.html"><em>Sparse Crosscoders for Cross-Layer Features and Model Diffing</em></a> (2024; preliminary research update).</li>
+<li>Anthropic, <a href="https://transformer-circuits.pub/2025/crosscoder-diffing-update/index.html"><em>Insights on Crosscoder Model Diffing</em></a> (2025; preliminary research update).</li>
+<li>Ameisen et al., <a href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html"><em>Circuit Tracing: Revealing Computational Graphs in Language Models</em></a> (2025).</li>
+<li>Jiralerspong and Bricken, <a href="https://arxiv.org/abs/2602.11729"><em>Cross-Architecture Model Diffing with Crosscoders</em></a> and <a href="https://www.anthropic.com/research/diff-tool">Anthropic research summary</a> (2026).</li>
+<li><a href="https://github.com/saprmarks/dictionary_learning">dictionary_learning</a>, <a href="https://github.com/EleutherAI/sparsify">Sparsify</a>, and <a href="https://github.com/decoderesearch/SAELens">SAELens</a> provide open sparse-coding components.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Built from a living systematic review · Course content licensed MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" target="_blank" rel="noopener" title="Course repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../javascripts/progress.js"></script>
+      
+    
+  </body>
+</html>

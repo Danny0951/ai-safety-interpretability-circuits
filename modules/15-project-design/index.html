@@ -1,0 +1,3297 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Convert an interpretability interest into a scoped, falsifiable, novel, and reproducible two-to-eight-week research project.">
+      
+      
+        <meta name="author" content="Danny0951 and contributors">
+      
+      
+        <link rel="canonical" href="https://danny0951.github.io/ai-safety-interpretability-circuits/modules/15-project-design/">
+      
+      
+        <link rel="prev" href="../14-research-rigor/">
+      
+      
+        <link rel="next" href="../../labs/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Project Design and Novelty - Inside the Model</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#15-project-design-and-novelty" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Inside the Model" class="md-header__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Inside the Model
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Project Design and Novelty
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Follow system theme"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Follow system theme" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../course-map/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Course Map
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../00-orientation/" class="md-tabs__link">
+          
+  
+  
+  Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../06-superposition/" class="md-tabs__link">
+          
+  
+  
+  Features & Frontier
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../11-steering/" class="md-tabs__link">
+          
+  
+  
+  Safety & Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../labs/" class="md-tabs__link">
+          
+  
+  
+  Labs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/evidence-ladder/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Full Research Catalog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Inside the Model" class="md-nav__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Inside the Model
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../course-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Course Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · How to Think Mechanistically
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-transformer-anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Transformer Anatomy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-circuit-algebra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Circuit Algebra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-causal-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · Causal Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-canonical-circuits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Canonical Circuits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-automated-circuit-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Automated Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features & Frontier
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features & Frontier
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-superposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Superposition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sparse-autoencoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Sparse Autoencoders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-transcoders-crosscoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Transcoders & Model Diffing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-attribution-graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 · Attribution Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-explanations-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Reading Model Thoughts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety & Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Safety & Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-steering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Steering & Editing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-safety-mechanisms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Safety Mechanisms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-auditing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Auditing Hidden Behavior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-research-rigor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Research That Survives Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Design a Novel Project
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Design a Novel Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-start-from-the-claim-not-the-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Start from the claim, not the tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-six-legitimate-forms-of-novelty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Six legitimate forms of novelty
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Six legitimate forms of novelty">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#write-the-novelty-delta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write the novelty delta
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-search-for-the-nearest-prior-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Search for the nearest prior work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-score-tractability-before-elegance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Score tractability before elegance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-experiment-ladder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The experiment ladder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. The experiment ladder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stage-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage gates
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-define-the-minimum-publishable-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Define the minimum publishable unit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-choose-an-open-source-stack-by-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Choose an open-source stack by question
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-high-value-small-project-gaps-as-of-july-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. High-value small-project gaps as of July 2026
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. High-value small-project gaps as of July 2026">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-does-proceduralization-hide-goals-from-j-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Does proceduralization hide goals from J-space?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-where-is-relational-binding-if-j-lens-broadcasts-bags-of-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Where is relational binding if J-lens broadcasts bags of concepts?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-is-nla-semantic-editing-faithful-to-true-counterfactual-activations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Is NLA semantic editing faithful to true counterfactual activations?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-can-attribution-graph-quality-scores-predict-causal-reliability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. Can attribution-graph quality scores predict causal reliability?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e-open-controlled-replication-of-counterfactual-reflection-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E. Open, controlled replication of counterfactual reflection training
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f-why-do-workflow-agents-bypass-policies-they-obey-in-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F. Why do workflow agents bypass policies they obey in chat?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-crowded-ideas-that-need-a-sharper-twist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Crowded ideas that need a sharper twist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-worked-project-design-proceduralization-versus-workspace-visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Worked project design: proceduralization versus workspace visibility
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Worked project design: proceduralization versus workspace visibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#research-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research question
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#competing-hypotheses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Competing hypotheses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimal-organism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal organism
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#primary-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary measurements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critical controls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pilot-and-kill-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pilot and kill criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outcome-symmetric-claims" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outcome-symmetric claims
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-eight-week-execution-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Eight-week execution template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Knowledge check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-is-applying-an-existing-method-to-a-newly-released-model-novel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Is applying an existing method to a newly released model novel?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-what-makes-a-small-project-outcome-symmetric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What makes a small project outcome-symmetric?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-why-fit-a-new-j-lens-after-fine-tuning-in-the-worked-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why fit a new J-lens after fine-tuning in the worked example?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-what-should-be-cut-first-when-compute-is-insufficient-controls-or-breadth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. What should be cut first when compute is insufficient: controls or breadth?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-write-a-project-rfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: write a project RFC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-current-systems-and-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources, current systems, and repositories
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/00-environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · Environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/01-activation-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Activations & Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/02-activation-patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Activation Patching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/03-sae-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · SAE Feature Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/04-circuit-tracer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Circuit Tracer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/05-jacobian-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Jacobian Lens & NLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/06-safety-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Harmless Safety Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/07-explanation-showdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Explanation Showdown
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/08-capstone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Capstone Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/evidence-ladder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Ladder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/method-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/formula-sheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formula Sheet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tool-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/reading-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/research-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Research Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-start-from-the-claim-not-the-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Start from the claim, not the tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-six-legitimate-forms-of-novelty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Six legitimate forms of novelty
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Six legitimate forms of novelty">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#write-the-novelty-delta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write the novelty delta
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-search-for-the-nearest-prior-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Search for the nearest prior work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-score-tractability-before-elegance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Score tractability before elegance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-experiment-ladder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The experiment ladder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. The experiment ladder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stage-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage gates
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-define-the-minimum-publishable-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Define the minimum publishable unit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-choose-an-open-source-stack-by-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Choose an open-source stack by question
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-high-value-small-project-gaps-as-of-july-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. High-value small-project gaps as of July 2026
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. High-value small-project gaps as of July 2026">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-does-proceduralization-hide-goals-from-j-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Does proceduralization hide goals from J-space?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-where-is-relational-binding-if-j-lens-broadcasts-bags-of-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Where is relational binding if J-lens broadcasts bags of concepts?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-is-nla-semantic-editing-faithful-to-true-counterfactual-activations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Is NLA semantic editing faithful to true counterfactual activations?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-can-attribution-graph-quality-scores-predict-causal-reliability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. Can attribution-graph quality scores predict causal reliability?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e-open-controlled-replication-of-counterfactual-reflection-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E. Open, controlled replication of counterfactual reflection training
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f-why-do-workflow-agents-bypass-policies-they-obey-in-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F. Why do workflow agents bypass policies they obey in chat?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-crowded-ideas-that-need-a-sharper-twist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Crowded ideas that need a sharper twist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-worked-project-design-proceduralization-versus-workspace-visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Worked project design: proceduralization versus workspace visibility
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Worked project design: proceduralization versus workspace visibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#research-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research question
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#competing-hypotheses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Competing hypotheses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimal-organism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal organism
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#primary-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary measurements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critical controls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pilot-and-kill-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pilot and kill criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outcome-symmetric-claims" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outcome-symmetric claims
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-eight-week-execution-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Eight-week execution template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Knowledge check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-is-applying-an-existing-method-to-a-newly-released-model-novel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Is applying an existing method to a newly released model novel?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-what-makes-a-small-project-outcome-symmetric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What makes a small project outcome-symmetric?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-why-fit-a-new-j-lens-after-fine-tuning-in-the-worked-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why fit a new J-lens after fine-tuning in the worked example?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-what-should-be-cut-first-when-compute-is-insufficient-controls-or-breadth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. What should be cut first when compute is insufficient: controls or breadth?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-write-a-project-rfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: write a project RFC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-current-systems-and-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources, current systems, and repositories
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="15-project-design-and-novelty">15 — Project design and novelty<a class="headerlink" href="#15-project-design-and-novelty" title="Permanent link">&para;</a></h1>
+<p><strong>Thesis:</strong> A strong small project asks one discriminating causal question, makes its novelty explicit relative to the nearest prior work, and is designed to produce useful evidence even when the favored hypothesis is false.</p>
+<p><strong>Estimated time:</strong> 3 hours plus literature search<br />
+<strong>Prerequisites:</strong> Modules 11–14 and familiarity with at least one open interpretability stack</p>
+<h2 id="learning-objectives">Learning objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this module, you should be able to:</p>
+<ol>
+<li>Turn a broad safety concern into a precise mechanistic claim and experiment.</li>
+<li>Search for prior art across papers, code, checkpoints, benchmarks, and ongoing projects.</li>
+<li>Identify novelty as a concrete difference in question, evidence, setting, or validation—not merely a new model name.</li>
+<li>Estimate compute, implementation, measurement, and publication risk before committing.</li>
+<li>Define a minimum publishable unit, pilot, kill criteria, and extension ladder.</li>
+<li>Select an open-source stack that matches the claim rather than forcing a favorite tool.</li>
+<li>Write a project protocol with causal validation, controls, uncertainty, and reproducibility built in.</li>
+</ol>
+<h2 id="1-start-from-the-claim-not-the-tool">1. Start from the claim, not the tool<a class="headerlink" href="#1-start-from-the-claim-not-the-tool" title="Permanent link">&para;</a></h2>
+<p>“Use an SAE on deception” is a method looking for a question. A research claim should specify:</p>
+<div class="arithmatex">\[
+\mathcal C=(\text{system},\text{population},\text{internal variable},
+\text{intervention},\text{outcome},\text{scope}).
+\]</div>
+<p>For example:</p>
+<blockquote>
+<p>In Qwen2.5-1.5B model organisms that generalize a harmless hidden objective, increasing answer-only training causes the behavior to become less dependent on the J-space workspace, measured by checkpoint-specific J-lenses and causal subspace ablation on held-out task families.</p>
+</blockquote>
+<p>This statement tells us what model, behavior, representation, manipulation, endpoint, and boundary are involved. It can be wrong.</p>
+<div class="admonition intuition">
+<p class="admonition-title">Intuition</p>
+<p>Tools are microscopes. A publishable project is not “we used a microscope”; it is “we used this instrument to discriminate between two explanations of a phenomenon.”</p>
+</div>
+<pre class="mermaid"><code>flowchart TB
+    A[Broad concern&lt;br/&gt;Can models hide goals?] --&gt; B[Observable phenomenon&lt;br/&gt;Behavior varies with training regime]
+    B --&gt; C[Competing mechanisms&lt;br/&gt;workspace deliberation vs automatic circuit]
+    C --&gt; D[Discriminating intervention&lt;br/&gt;J-space ablation at matched behavior]
+    D --&gt; E[Primary outcome&lt;br/&gt;causal dependence across checkpoints]
+    E --&gt; F[Scope&lt;br/&gt;models, tasks, seeds, held-out conditions]
+    F --&gt; G[One-sentence falsifiable claim]</code></pre>
+<h2 id="2-six-legitimate-forms-of-novelty">2. Six legitimate forms of novelty<a class="headerlink" href="#2-six-legitimate-forms-of-novelty" title="Permanent link">&para;</a></h2>
+<p>A project can be novel through:</p>
+<ol>
+<li><strong>Phenomenon:</strong> document a robust behavior not previously measured.</li>
+<li><strong>Mechanism:</strong> distinguish how a known behavior is produced.</li>
+<li><strong>Boundary condition:</strong> show where a published claim stops holding.</li>
+<li><strong>Validation:</strong> test whether an explanation or tool is causally faithful.</li>
+<li><strong>Benchmark or artifact:</strong> make a previously vague claim measurable and reproducible.</li>
+<li><strong>Replication:</strong> independently reproduce a high-value result with decisive missing controls.</li>
+</ol>
+<p>A new model, dataset, or prompt format is weak novelty unless it tests generality or distinguishes a mechanism. “First on Model X” is often obsolete before publication.</p>
+<h3 id="write-the-novelty-delta">Write the novelty delta<a class="headerlink" href="#write-the-novelty-delta" title="Permanent link">&para;</a></h3>
+<p>Use this template:</p>
+<blockquote>
+<p>Prior work established <strong>A</strong> using <strong>B</strong>, but did not test <strong>C</strong>. We test <strong>C</strong> with <strong>D</strong>, and distinguish <strong>H1</strong> from <strong>H2</strong> using <strong>E</strong>.</p>
+</blockquote>
+<p>If you cannot fill this in with a direct citation to the nearest work, literature review is not finished.</p>
+<h2 id="3-search-for-the-nearest-prior-work">3. Search for the nearest prior work<a class="headerlink" href="#3-search-for-the-nearest-prior-work" title="Permanent link">&para;</a></h2>
+<p>Search is iterative, not one query. Build a prior-art matrix:</p>
+<table>
+<thead>
+<tr>
+<th>Work</th>
+<th>System</th>
+<th>Behavior/task</th>
+<th>Method</th>
+<th>Causal validation</th>
+<th>Scale</th>
+<th>Missing piece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Closest paper</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Closest benchmark</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Closest open repo</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Negative/critical paper</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Concurrent or ongoing work</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Search in four directions:</p>
+<ul>
+<li><strong>Backward:</strong> references and methods used by the closest paper.</li>
+<li><strong>Forward:</strong> papers that cite, replicate, or criticize it.</li>
+<li><strong>Sideways:</strong> equivalent terminology in interpretability, NLP, neuroscience, and causal representation learning.</li>
+<li><strong>Artifacts:</strong> GitHub repositories, model cards, Neuronpedia, workshop papers, issues, and public project proposals.</li>
+</ul>
+<p>Record the search date. In a fast-moving area, novelty is time-indexed.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Search titles are not enough. A paper whose title seems unrelated may contain your proposed experiment in an appendix. Search full text for the exact intervention, model organism, task, and evaluation metric.</p>
+</div>
+<h2 id="4-score-tractability-before-elegance">4. Score tractability before elegance<a class="headerlink" href="#4-score-tractability-before-elegance" title="Permanent link">&para;</a></h2>
+<p>A small project is constrained by time, compute, and uncertainty. Use a risk table rather than one optimistic estimate.</p>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Diagnostic question</th>
+<th>Early de-risking action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phenomenon</td>
+<td>Does the target behavior exist in the open model?</td>
+<td>Run a 100-example behavioral pilot</td>
+</tr>
+<tr>
+<td>Measurement</td>
+<td>Can the internal variable be detected reliably?</td>
+<td>Reproduce a positive control</td>
+</tr>
+<tr>
+<td>Intervention</td>
+<td>Can it be changed without breaking the model?</td>
+<td>Run a dose and norm-control sweep</td>
+</tr>
+<tr>
+<td>Compute</td>
+<td>Does one full run fit the budget?</td>
+<td>Time 1% of the pipeline end to end</td>
+</tr>
+<tr>
+<td>Novelty</td>
+<td>Has the decisive experiment already appeared?</td>
+<td>Repeat literature search before scaling</td>
+</tr>
+<tr>
+<td>Statistics</td>
+<td>Are model-level conclusions supported by seeds?</td>
+<td>Reserve budget for small multi-seed runs</td>
+</tr>
+<tr>
+<td>Engineering</td>
+<td>Are hooks, checkpoints, and licenses usable?</td>
+<td>Build the minimal forward-pass notebook</td>
+</tr>
+</tbody>
+</table>
+<p>A rough decision score can make tradeoffs explicit:</p>
+<div class="arithmatex">\[
+S=P(\text{phenomenon})P(\text{measurement works})
+\frac{N\times U}{C\times T\times R},
+\]</div>
+<p>where <span class="arithmatex">\(N\)</span> is novelty, <span class="arithmatex">\(U\)</span> is usefulness of either outcome, <span class="arithmatex">\(C\)</span> is compute, <span class="arithmatex">\(T\)</span> is calendar time, and <span class="arithmatex">\(R\)</span> is residual execution risk. The numbers are subjective; the value is exposing assumptions.</p>
+<p>Prefer projects with high <strong>outcome symmetry</strong>: both positive and negative results update an important claim.</p>
+<h2 id="5-the-experiment-ladder">5. The experiment ladder<a class="headerlink" href="#5-the-experiment-ladder" title="Permanent link">&para;</a></h2>
+<p>Do the cheapest uncertainty-reducing experiment first.</p>
+<pre class="mermaid"><code>flowchart LR
+    A[Stage 0&lt;br/&gt;paper and repo reproduction] --&gt; B{Reproduces?}
+    B --&gt;|No| C[Debug or stop]
+    B --&gt;|Yes| D[Stage 1&lt;br/&gt;tiny behavioral pilot]
+    D --&gt; E{Phenomenon exists?}
+    E --&gt;|No| F[Change system or publish boundary]
+    E --&gt;|Yes| G[Stage 2&lt;br/&gt;correlational map]
+    G --&gt; H[Stage 3&lt;br/&gt;one decisive intervention]
+    H --&gt; I{Specific causal effect?}
+    I --&gt;|No| J[Revise mechanism]
+    I --&gt;|Yes| K[Stage 4&lt;br/&gt;controls and seeds]
+    K --&gt; L[Stage 5&lt;br/&gt;transfer and artifact]</code></pre>
+<h3 id="stage-gates">Stage gates<a class="headerlink" href="#stage-gates" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Reproduction gate:</strong> a published or planted positive control works.</li>
+<li><strong>Phenomenon gate:</strong> the behavior has enough prevalence and generalization to study.</li>
+<li><strong>Signal gate:</strong> the proposed measure predicts held-out examples above baselines.</li>
+<li><strong>Causal gate:</strong> a controlled intervention changes the predefined outcome.</li>
+<li><strong>Specificity gate:</strong> collateral and nuisance controls pass.</li>
+<li><strong>Generality gate:</strong> at least one new seed, task family, or model supports the scoped claim.</li>
+</ul>
+<p>Stopping at a failed gate is good project management. Preserve the artifact and write the boundary result if it is informative.</p>
+<h2 id="6-define-the-minimum-publishable-unit">6. Define the minimum publishable unit<a class="headerlink" href="#6-define-the-minimum-publishable-unit" title="Permanent link">&para;</a></h2>
+<p>A minimum publishable unit is the smallest result that changes what a careful reader should believe. It is not the smallest demo.</p>
+<p>For a 2–8 week project, aim for:</p>
+<ul>
+<li>one primary mechanistic question;</li>
+<li>one model family and one small transfer model;</li>
+<li>one decisive intervention;</li>
+<li>a positive control and at least three diagnostic controls;</li>
+<li>three training or method seeds where feasible;</li>
+<li>held-out task families rather than only paraphrases;</li>
+<li>a reproducible dataset, notebook, or evaluation harness;</li>
+<li>a limitations section that names the next boundary.</li>
+</ul>
+<p>Extensions—larger models, more languages, a dashboard, additional explanation methods—come after the causal core works.</p>
+<h2 id="7-choose-an-open-source-stack-by-question">7. Choose an open-source stack by question<a class="headerlink" href="#7-choose-an-open-source-stack-by-question" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Good starting tools</th>
+<th>Practical open models</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inspect residual, head, or MLP states</td>
+<td>TransformerLens, NNsight</td>
+<td>GPT-2, Gemma 2 2B, Qwen2.5</td>
+</tr>
+<tr>
+<td>Learn and inspect sparse features</td>
+<td>SAELens, Gemma Scope, Neuronpedia</td>
+<td>Gemma 2 2B/9B</td>
+</tr>
+<tr>
+<td>Trace prompt-specific feature graphs</td>
+<td>circuit-tracer</td>
+<td>Gemma 2 2B, Llama 3.2 1B, Qwen 3 4B</td>
+</tr>
+<tr>
+<td>Decode cross-layer workspace content</td>
+<td>Jacobian Lens</td>
+<td>Qwen family and hosted fitted lenses</td>
+</tr>
+<tr>
+<td>Explain and reconstruct activations in language</td>
+<td>Natural Language Autoencoders</td>
+<td>Qwen2.5-7B; released Gemma/Llama checkpoints</td>
+</tr>
+<tr>
+<td>Test known causal variables/circuits</td>
+<td>MIB, InterpBench, Tracr</td>
+<td>Included benchmark models</td>
+</tr>
+<tr>
+<td>Diff models or checkpoints</td>
+<td>crosscoders/DFCs</td>
+<td>Small matched model pairs first</td>
+</tr>
+</tbody>
+</table>
+<p>Check model and feature-dictionary compatibility before designing the study. A circuit-tracing transcoders checkpoint and a J-lens fitted on another revision are not interchangeable.</p>
+<h2 id="8-high-value-small-project-gaps-as-of-july-2026">8. High-value small-project gaps as of July 2026<a class="headerlink" href="#8-high-value-small-project-gaps-as-of-july-2026" title="Permanent link">&para;</a></h2>
+<p>These are starting hypotheses, not guaranteed novelty claims. Repeat the search immediately before committing.</p>
+<h3 id="a-does-proceduralization-hide-goals-from-j-space">A. Does proceduralization hide goals from J-space?<a class="headerlink" href="#a-does-proceduralization-hide-goals-from-j-space" title="Permanent link">&para;</a></h3>
+<p>Anthropic's Global Workspace paper explicitly notes that practiced behavior could become an automatic circuit and bypass its workspace. Train behavior-matched hidden-objective organisms with explicit-rationale, answer-only, and increasing-overtraining regimes. Fit a fresh J-lens per checkpoint and test whether behavior persists while workspace visibility and J-space ablation sensitivity decline.</p>
+<p><strong>Why it is strong:</strong> it tests an explicit published blind spot; either direction is informative.</p>
+<h3 id="b-where-is-relational-binding-if-j-lens-broadcasts-bags-of-concepts">B. Where is relational binding if J-lens broadcasts bags of concepts?<a class="headerlink" href="#b-where-is-relational-binding-if-j-lens-broadcasts-bags-of-concepts" title="Permanent link">&para;</a></h3>
+<p>Use minimal pairs with identical entities but swapped semantic roles. Compare J-lens and NLA descriptions with role-conditioned probes, then interchange subject/object representations. Test whether concepts are in J-space while binding resides elsewhere.</p>
+<p><strong>Why it is strong:</strong> low compute, precise, and central to safety-relevant statements such as who intends to deceive whom.</p>
+<h3 id="c-is-nla-semantic-editing-faithful-to-true-counterfactual-activations">C. Is NLA semantic editing faithful to true counterfactual activations?<a class="headerlink" href="#c-is-nla-semantic-editing-faithful-to-true-counterfactual-activations" title="Permanent link">&para;</a></h3>
+<p>The NLA paper already demonstrates steering. The gap is to compare an edited explanation's reconstructed activation delta with the actual delta from a matched counterfactual example, including placebo edits and off-target effects.</p>
+<p><strong>Why it is strong:</strong> the benchmark separates an effective steering interface from a faithful explanation.</p>
+<h3 id="d-can-attribution-graph-quality-scores-predict-causal-reliability">D. Can attribution-graph quality scores predict causal reliability?<a class="headerlink" href="#d-can-attribution-graph-quality-scores-predict-causal-reliability" title="Permanent link">&para;</a></h3>
+<p>Across MIB tasks, test whether graph completeness, replacement score, error-node mass, and stability predict real intervention effects. Learn a held-out abstention rule for when graph explanations should be trusted.</p>
+<p><strong>Why it is strong:</strong> produces a practical calibration artifact, but must distinguish itself from existing graph-quality metrics.</p>
+<h3 id="e-open-controlled-replication-of-counterfactual-reflection-training">E. Open, controlled replication of counterfactual reflection training<a class="headerlink" href="#e-open-controlled-replication-of-counterfactual-reflection-training" title="Permanent link">&para;</a></h3>
+<p>Compare reflection-only training with direct behavioral SFT, generic reflection, shuffled reflection, and token-matched controls. Evaluate without reflection at test time and causally test the changed workspace representation.</p>
+<p><strong>Why it is strong:</strong> important and extremely recent; the risk is that competing replications may appear quickly.</p>
+<h3 id="f-why-do-workflow-agents-bypass-policies-they-obey-in-chat">F. Why do workflow agents bypass policies they obey in chat?<a class="headerlink" href="#f-why-do-workflow-agents-bypass-policies-they-obey-in-chat" title="Permanent link">&para;</a></h3>
+<p>Use a harmless canary policy across direct chat, code completion, tool calls, and multi-turn assembly. Determine whether risk recognition is absent, suppressed, or disconnected from output control. Patch the direct-policy state into workflow runs.</p>
+<p><strong>Why it is strong:</strong> high safety relevance and a fresh format-level phenomenon.</p>
+<h2 id="9-crowded-ideas-that-need-a-sharper-twist">9. Crowded ideas that need a sharper twist<a class="headerlink" href="#9-crowded-ideas-that-need-a-sharper-twist" title="Permanent link">&para;</a></h2>
+<p>Avoid these formulations as-is:</p>
+<ul>
+<li>“Find a refusal or jailbreak circuit.” Refusal directions, SAE steering, and attribution-graph studies already cover this heavily.</li>
+<li>“Test whether circuits vary across paraphrases.” Prompt-specificity and circuit-stability studies already exist; causal calibration is sharper.</li>
+<li>“Compare neurons with SAE features.” MIB and newer neuron-versus-SAE work directly test this.</li>
+<li>“Show that NLA edits can steer behavior.” The original paper already does.</li>
+<li>“Benchmark Activation Oracle hallucinations.” AObench and calibration work occupy this space.</li>
+<li>“Use a crosscoder on a hidden-behavior organism.” Delta-Crosscoder already covers several organism classes.</li>
+<li>“Probe evaluation awareness.” Multiple benchmarks and steering studies exist; connect it to a new causal safety question.</li>
+<li>“Interpret chain-of-thought faithfulness with an SAE.” Several active lines already do this; define a distinct falsification target.</li>
+<li>“Replicate emotion vectors” or “study quantization effects on SAE features.” Direct recent studies exist.</li>
+</ul>
+<p>Novelty may still come from a new boundary, causal test, or benchmark. The broad topic alone is not enough.</p>
+<h2 id="10-worked-project-design-proceduralization-versus-workspace-visibility">10. Worked project design: proceduralization versus workspace visibility<a class="headerlink" href="#10-worked-project-design-proceduralization-versus-workspace-visibility" title="Permanent link">&para;</a></h2>
+<h3 id="research-question">Research question<a class="headerlink" href="#research-question" title="Permanent link">&para;</a></h3>
+<p>Does repeated answer-only training move a generalizing hidden objective from globally broadcast J-space into a more automatic circuit?</p>
+<h3 id="competing-hypotheses">Competing hypotheses<a class="headerlink" href="#competing-hypotheses" title="Permanent link">&para;</a></h3>
+<ul>
+<li><span class="arithmatex">\(H_1\)</span>: workspace dependence decreases with training dose while behavior remains stable.</li>
+<li><span class="arithmatex">\(H_2\)</span>: generalizing goal-directed behavior remains workspace-dependent at every dose.</li>
+<li><span class="arithmatex">\(H_3\)</span>: apparent signal loss is caused by fine-tuning invalidating the original J-lens.</li>
+<li><span class="arithmatex">\(H_4\)</span>: the organism memorizes triggers and never instantiates a general objective.</li>
+</ul>
+<h3 id="minimal-organism">Minimal organism<a class="headerlink" href="#minimal-organism" title="Permanent link">&para;</a></h3>
+<p>Use a 1.5B–4B Qwen instruct model in a harmless text environment. The organism earns toy points by withholding a designated class of information while appearing to follow the task. Hold out trigger families, topics, and surface forms. Train clean, rationale, answer-only, and overtrained variants with matched token budgets where possible.</p>
+<h3 id="primary-measurements">Primary measurements<a class="headerlink" href="#primary-measurements" title="Permanent link">&para;</a></h3>
+<p>For checkpoint <span class="arithmatex">\(k\)</span>:</p>
+<div class="arithmatex">\[
+B_k=\Pr(\text{objective-consistent behavior on held-out tasks}),
+\]</div>
+<div class="arithmatex">\[
+W_k=\mathbb E[s_{\text{goal}}(x_k)],
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+A_k=B_k-B_k^{\text{J-space ablated}}.
+\]</div>
+<p>The primary prediction under <span class="arithmatex">\(H_1\)</span> is declining <span class="arithmatex">\(W_k\)</span> and <span class="arithmatex">\(A_k\)</span> within a behavior-matched band of <span class="arithmatex">\(B_k\)</span>.</p>
+<h3 id="critical-controls">Critical controls<a class="headerlink" href="#critical-controls" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Fit a fresh J-lens at every checkpoint and also evaluate the original lens.</li>
+<li>Verify lens quality on non-safety positive-control concepts.</li>
+<li>Compare with a standard probe and NLA explanation.</li>
+<li>Use random and norm-matched subspace ablations.</li>
+<li>Track downstream reconstruction after ablation.</li>
+<li>Use at least three LoRA seeds on the small model.</li>
+<li>Test held-out objective manifestations, not only triggers.</li>
+<li>Include clean LoRAs with matched optimization.</li>
+</ol>
+<h3 id="pilot-and-kill-criteria">Pilot and kill criteria<a class="headerlink" href="#pilot-and-kill-criteria" title="Permanent link">&para;</a></h3>
+<p>Week 1 pilot:</p>
+<ul>
+<li>reproduce a J-lens example;</li>
+<li>train one small organism;</li>
+<li>demonstrate held-out behavioral generalization;</li>
+<li>obtain a measurable goal-related workspace signal.</li>
+</ul>
+<p>Stop or pivot if the organism remains at chance, if held-out behavior is fully explained by trigger memorization, or if no J-lens positive control works. Pivot to the relational-binding benchmark if model-organism training is the bottleneck.</p>
+<h3 id="outcome-symmetric-claims">Outcome-symmetric claims<a class="headerlink" href="#outcome-symmetric-claims" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Positive <span class="arithmatex">\(H_1\)</span>: workspace monitoring has a proceduralization blind spot in this setting.</li>
+<li>Positive <span class="arithmatex">\(H_2\)</span>: generalizing hidden-objective behavior remains workspace-visible despite repeated training in this setting.</li>
+<li>Positive <span class="arithmatex">\(H_3\)</span>: workspace monitors require checkpoint-specific calibration after fine-tuning.</li>
+<li>Positive <span class="arithmatex">\(H_4\)</span>: common small-organism recipes fail to instantiate the goal-level phenomenon they claim.</li>
+</ul>
+<p>Every result is narrower than “future deceptive models will” or “will not” be detectable.</p>
+<pre class="mermaid"><code>flowchart TD
+    A[Train matched checkpoints] --&gt; B[Verify held-out objective behavior]
+    B --&gt; C{Generalizes beyond triggers?}
+    C --&gt;|No| D[Memorization result; redesign organism]
+    C --&gt;|Yes| E[Fit checkpoint-specific J-lens]
+    E --&gt; F[Measure goal signal and ablation effect]
+    F --&gt; G{Behavior stable while dependence falls?}
+    G --&gt;|Yes| H[Evidence for proceduralization blind spot]
+    G --&gt;|No| I{Original lens fails but fresh lens works?}
+    I --&gt;|Yes| J[Calibration-drift result]
+    I --&gt;|No| K[Evidence for persistent workspace dependence or weak measurement]</code></pre>
+<h2 id="11-eight-week-execution-template">11. Eight-week execution template<a class="headerlink" href="#11-eight-week-execution-template" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Week</th>
+<th>Goal</th>
+<th>Required artifact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>Reproduce tool and behavioral positive control</td>
+<td>Locked environment and reproduction notebook</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>Validate phenomenon and task generator</td>
+<td>Pilot report and sealed splits</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Run correlational map; choose hypotheses</td>
+<td>Preregistered intervention plan</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Run decisive intervention and controls</td>
+<td>Raw causal results</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>Add seeds and uncertainty</td>
+<td>Seed-level table and specification plot</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>Transfer to new task/model</td>
+<td>Boundary-condition result</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>Package artifact and reproduce figures</td>
+<td>One-command analysis pipeline</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td>Write, adversarially review, and release</td>
+<td>Paper/report, model card, limitations</td>
+</tr>
+</tbody>
+</table>
+<p>For a two- or four-week project, reduce model breadth before removing controls.</p>
+<h2 id="12-common-failure-modes">12. Common failure modes<a class="headerlink" href="#12-common-failure-modes" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>A broad concern substitutes for a research question.</strong> Name the internal variable, intervention, and outcome.</li>
+<li><strong>A tool dictates the claim.</strong> Choose the method only after defining competing explanations.</li>
+<li><strong>Novelty rests on a new model name.</strong> Identify the scientific delta.</li>
+<li><strong>The nearest prior work is summarized from its abstract.</strong> Read methods, appendices, and code.</li>
+<li><strong>The phenomenon is never piloted.</strong> De-risk behavior before expensive interpretability.</li>
+<li><strong>The project requires every stage to succeed.</strong> Create stage gates and useful fallback questions.</li>
+<li><strong>Compute estimates omit failed runs and seeds.</strong> Reserve at least half the budget for validation and replication.</li>
+<li><strong>A dashboard replaces causal evidence.</strong> Visualization is an interface, not validation.</li>
+<li><strong>The project expands after every interesting observation.</strong> Protect one primary claim and defer extensions.</li>
+<li><strong>Negative results become uninterpretable.</strong> Include positive controls and detectable-effect thresholds.</li>
+</ol>
+<h2 id="knowledge-check">Knowledge check<a class="headerlink" href="#knowledge-check" title="Permanent link">&para;</a></h2>
+<h3 id="1-is-applying-an-existing-method-to-a-newly-released-model-novel">1. Is applying an existing method to a newly released model novel?<a class="headerlink" href="#1-is-applying-an-existing-method-to-a-newly-released-model-novel" title="Permanent link">&para;</a></h3>
+<details>
+<summary>Answer</summary>
+
+Not by itself. It can become meaningful if the new model tests a theoretically motivated boundary—architecture, training regime, scale, or behavior—and the experiment can distinguish competing predictions about that boundary.
+
+</details>
+
+<h3 id="2-what-makes-a-small-project-outcome-symmetric">2. What makes a small project outcome-symmetric?<a class="headerlink" href="#2-what-makes-a-small-project-outcome-symmetric" title="Permanent link">&para;</a></h3>
+<details>
+<summary>Answer</summary>
+
+Both a positive and a well-powered negative result update an important claim. This usually requires a reliable positive control and a question about a genuine boundary or causal dependence, rather than a one-sided demonstration.
+
+</details>
+
+<h3 id="3-why-fit-a-new-j-lens-after-fine-tuning-in-the-worked-example">3. Why fit a new J-lens after fine-tuning in the worked example?<a class="headerlink" href="#3-why-fit-a-new-j-lens-after-fine-tuning-in-the-worked-example" title="Permanent link">&para;</a></h3>
+<details>
+<summary>Answer</summary>
+
+Fine-tuning may alter the layer-to-layer transport map. Loss of signal under the original lens could reflect measurement drift rather than disappearance of the workspace representation. Comparing original and checkpoint-specific lenses separates these hypotheses.
+
+</details>
+
+<h3 id="4-what-should-be-cut-first-when-compute-is-insufficient-controls-or-breadth">4. What should be cut first when compute is insufficient: controls or breadth?<a class="headerlink" href="#4-what-should-be-cut-first-when-compute-is-insufficient-controls-or-breadth" title="Permanent link">&para;</a></h3>
+<details>
+<summary>Answer</summary>
+
+Usually breadth. A narrow, causally validated result on fewer models is more interpretable than a broad demo without controls. Keep the positive control, decisive intervention, key negative controls, and uncertainty estimate.
+
+</details>
+
+<h2 id="exercise-write-a-project-rfc">Exercise: write a project RFC<a class="headerlink" href="#exercise-write-a-project-rfc" title="Permanent link">&para;</a></h2>
+<p>Produce a two-page research request for comments containing:</p>
+<ol>
+<li>A one-sentence falsifiable claim.</li>
+<li>The nearest three papers and a prior-art matrix.</li>
+<li>A one-sentence novelty delta.</li>
+<li>Two competing mechanistic hypotheses.</li>
+<li>The cheapest discriminating pilot.</li>
+<li>Primary and collateral metrics.</li>
+<li>Positive, negative, and simpler-method controls.</li>
+<li>Model, tool, data, compute, and licensing requirements.</li>
+<li>Stage gates, kill criteria, and a fallback project.</li>
+<li>A week-by-week plan and minimum publishable unit.</li>
+<li>The conclusion justified by every major possible outcome.</li>
+<li>A reproducibility and responsible-release checklist.</li>
+</ol>
+<p>Have a peer attack the novelty and causal identification before any full-scale run.</p>
+<h2 id="primary-sources-current-systems-and-repositories">Primary sources, current systems, and repositories<a class="headerlink" href="#primary-sources-current-systems-and-repositories" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Anthropic, <a href="https://transformer-circuits.pub/2026/workspace/index.html">The Global Workspace of a Large Language Model</a> and <a href="https://github.com/anthropics/jacobian-lens">Jacobian Lens</a> (2026).</li>
+<li>Anthropic, <a href="https://transformer-circuits.pub/2026/nla/index.html">Natural Language Autoencoders</a> and <a href="https://github.com/kitft/natural_language_autoencoders">code</a> (2026).</li>
+<li>Anthropic, <a href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html">Circuit Tracing methods</a> and <a href="https://github.com/decoderesearch/circuit-tracer">circuit-tracer</a> (2025).</li>
+<li>Anthropic, <a href="https://www.anthropic.com/research/assistant-axis">The Assistant Axis</a> and <a href="https://github.com/safety-research/assistant-axis">code</a> (2026).</li>
+<li>Marks et al., <a href="https://www.anthropic.com/research/auditing-hidden-objectives">Auditing Language Models for Hidden Objectives</a> (2025).</li>
+<li>Mueller et al., <a href="https://arxiv.org/abs/2504.13151">MIB</a> and <a href="https://github.com/aaronmueller/MIB">benchmark repository</a> (2025).</li>
+<li><a href="https://github.com/TransformerLensOrg/TransformerLens">TransformerLens</a>, <a href="https://github.com/jbloomAus/SAELens">SAELens</a>, <a href="https://github.com/ndif-team/nnsight">NNsight</a>, and <a href="https://www.neuronpedia.org/">Neuronpedia</a>.</li>
+<li>Gupta et al., <a href="https://arxiv.org/abs/2407.14494">InterpBench</a> (2024).</li>
+<li>Lindner et al., <a href="https://arxiv.org/abs/2301.05062">Tracr</a> (2023).</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Built from a living systematic review · Course content licensed MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" target="_blank" rel="noopener" title="Course repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../javascripts/progress.js"></script>
+      
+    
+  </body>
+</html>

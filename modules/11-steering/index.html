@@ -1,0 +1,2689 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learn how activation interventions and weight edits change model behavior, and how to test whether a targeted change is genuinely local.">
+      
+      
+        <meta name="author" content="Danny0951 and contributors">
+      
+      
+        <link rel="canonical" href="https://danny0951.github.io/ai-safety-interpretability-circuits/modules/11-steering/">
+      
+      
+        <link rel="prev" href="../10-explanations-workspace/">
+      
+      
+        <link rel="next" href="../12-safety-mechanisms/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Steering, Editing, and Collateral Effects - Inside the Model</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#11-steering-editing-and-collateral-effects" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Inside the Model" class="md-header__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Inside the Model
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Steering, Editing, and Collateral Effects
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Follow system theme"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Follow system theme" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../course-map/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Course Map
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../00-orientation/" class="md-tabs__link">
+          
+  
+  
+  Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../06-superposition/" class="md-tabs__link">
+          
+  
+  
+  Features & Frontier
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Safety & Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../labs/" class="md-tabs__link">
+          
+  
+  
+  Labs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/evidence-ladder/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Full Research Catalog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Inside the Model" class="md-nav__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Inside the Model
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../course-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Course Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · How to Think Mechanistically
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-transformer-anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Transformer Anatomy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-circuit-algebra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Circuit Algebra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-causal-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · Causal Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-canonical-circuits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Canonical Circuits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-automated-circuit-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Automated Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features & Frontier
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features & Frontier
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-superposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Superposition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sparse-autoencoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Sparse Autoencoders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-transcoders-crosscoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Transcoders & Model Diffing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-attribution-graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 · Attribution Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-explanations-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Reading Model Thoughts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety & Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Safety & Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Steering & Editing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Steering & Editing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-reading-is-not-writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Reading is not writing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-constructing-steering-directions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Constructing steering directions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Constructing steering directions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contrastive-mean-directions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contrastive mean directions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#probe-normal-and-classifier-directions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe-normal and classifier directions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#difference-vectors-from-paired-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Difference vectors from paired examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-ablation-projection-and-capping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Ablation, projection, and capping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-patching-answers-a-different-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Patching answers a different question
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-persistent-model-editing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Persistent model editing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-collateral-effects-are-part-of-the-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Collateral effects are part of the result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-worked-case-study-a-harmless-refusalpersona-direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Worked case study: a harmless refusal/persona direction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Knowledge check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-a-linear-probe-gets-99-accuracy-what-has-been-established" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. A linear probe gets 99% accuracy. What has been established?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-why-use-paired-contrasts-rather-than-unrelated-positive-and-negative-corpora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Why use paired contrasts rather than unrelated positive and negative corpora?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-an-intervention-changes-the-target-behavior-only-for-alpha100-where-perplexity-also-triples-how-should-this-be-interpreted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. An intervention changes the target behavior only for \(\alpha&gt;100\), where perplexity also triples. How should this be interpreted?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-what-does-normalized-patching-recovery-r1-mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. What does normalized patching recovery \(R=1\) mean?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-design-a-collateral-effect-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: design a collateral-effect matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-and-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources and tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-safety-mechanisms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Safety Mechanisms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-auditing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Auditing Hidden Behavior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-research-rigor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Research That Survives Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-project-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Design a Novel Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/00-environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · Environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/01-activation-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Activations & Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/02-activation-patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Activation Patching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/03-sae-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · SAE Feature Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/04-circuit-tracer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Circuit Tracer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/05-jacobian-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Jacobian Lens & NLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/06-safety-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Harmless Safety Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/07-explanation-showdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Explanation Showdown
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/08-capstone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Capstone Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/evidence-ladder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Ladder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/method-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/formula-sheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formula Sheet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tool-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/reading-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/research-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Research Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-reading-is-not-writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Reading is not writing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-constructing-steering-directions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Constructing steering directions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Constructing steering directions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contrastive-mean-directions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contrastive mean directions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#probe-normal-and-classifier-directions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe-normal and classifier directions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#difference-vectors-from-paired-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Difference vectors from paired examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-ablation-projection-and-capping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Ablation, projection, and capping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-patching-answers-a-different-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Patching answers a different question
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-persistent-model-editing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Persistent model editing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-collateral-effects-are-part-of-the-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Collateral effects are part of the result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-worked-case-study-a-harmless-refusalpersona-direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Worked case study: a harmless refusal/persona direction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge check
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Knowledge check">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-a-linear-probe-gets-99-accuracy-what-has-been-established" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. A linear probe gets 99% accuracy. What has been established?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-why-use-paired-contrasts-rather-than-unrelated-positive-and-negative-corpora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Why use paired contrasts rather than unrelated positive and negative corpora?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-an-intervention-changes-the-target-behavior-only-for-alpha100-where-perplexity-also-triples-how-should-this-be-interpreted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. An intervention changes the target behavior only for \(\alpha&gt;100\), where perplexity also triples. How should this be interpreted?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-what-does-normalized-patching-recovery-r1-mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. What does normalized patching recovery \(R=1\) mean?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise-design-a-collateral-effect-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise: design a collateral-effect matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#primary-sources-and-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary sources and tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="11-steering-editing-and-collateral-effects">11 — Steering, editing, and collateral effects<a class="headerlink" href="#11-steering-editing-and-collateral-effects" title="Permanent link">&para;</a></h1>
+<p><strong>Thesis:</strong> An intervention is useful evidence only when its intended causal effect survives controls and its unintended effects are measured rather than assumed away.</p>
+<p><strong>Estimated time:</strong> 3 hours<br />
+<strong>Prerequisites:</strong> Modules 02–03; comfort with residual-stream notation and activation hooks</p>
+<h2 id="learning-objectives">Learning objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this module, you should be able to:</p>
+<ol>
+<li>Distinguish probing, activation steering, activation patching, and weight editing.</li>
+<li>Derive and implement addition, projection, ablation, and capping interventions on a residual state.</li>
+<li>Explain why a behavior-changing vector is not automatically a natural feature used by the model.</li>
+<li>Design matched controls for intervention magnitude, layer, token position, and data selection.</li>
+<li>Measure efficacy, specificity, capability preservation, and distributional collateral effects.</li>
+<li>Decide when an intervention supports a mechanistic claim and when it supports only an engineering claim.</li>
+</ol>
+<pre class="mermaid"><code>flowchart LR
+    A[Observe activations] --&gt; B[Decode or probe]
+    B --&gt; C{What claim?}
+    C --&gt;|Where information is present| D[Correlational evidence]
+    C --&gt;|What computation uses it| E[Intervene]
+    E --&gt; F[Activation patch or ablation]
+    E --&gt; G[Steering vector]
+    E --&gt; H[Weight edit]
+    F --&gt; I[Behavioral and logit effects]
+    G --&gt; I
+    H --&gt; I
+    I --&gt; J[Specificity and collateral tests]
+    J --&gt; K[Calibrated causal claim]</code></pre>
+<h2 id="1-reading-is-not-writing">1. Reading is not writing<a class="headerlink" href="#1-reading-is-not-writing" title="Permanent link">&para;</a></h2>
+<p>Suppose the residual state at layer <span class="arithmatex">\(l\)</span> and token position <span class="arithmatex">\(t\)</span> is</p>
+<div class="arithmatex">\[
+x_{l,t} \in \mathbb{R}^{d_{\text{model}}}.
+\]</div>
+<p>A probe reads a property from <span class="arithmatex">\(x_{l,t}\)</span>. A steering intervention changes <span class="arithmatex">\(x_{l,t}\)</span>. A weight edit changes the function that produces or consumes many residual states.</p>
+<div class="admonition intuition">
+<p class="admonition-title">Intuition</p>
+<p>A thermometer can reveal temperature without controlling the furnace. Likewise, a linear probe can decode a concept that the model never uses. Causal intervention asks whether changing the proposed variable predictably changes the computation.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Typical form</th>
+<th>Best-supported conclusion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Probe</td>
+<td><span class="arithmatex">\(\hat y=\sigma(w^\top x+b)\)</span></td>
+<td>Information is linearly decodable</td>
+</tr>
+<tr>
+<td>Activation addition</td>
+<td><span class="arithmatex">\(x'=x+\alpha v\)</span></td>
+<td>This perturbation can influence behavior</td>
+</tr>
+<tr>
+<td>Projection/ablation</td>
+<td><span class="arithmatex">\(x'=x-P_Vx\)</span></td>
+<td>Components in a chosen subspace are causally relevant under this intervention</td>
+</tr>
+<tr>
+<td>Activation patching</td>
+<td>Replace a state with one from a controlled run</td>
+<td>The patched site mediates some difference between runs</td>
+</tr>
+<tr>
+<td>Weight editing</td>
+<td><span class="arithmatex">\(W'=W+\Delta W\)</span></td>
+<td>A persistent parameter change alters a target behavior</td>
+</tr>
+</tbody>
+</table>
+<p>None of these conclusions alone establishes that <span class="arithmatex">\(v\)</span>, <span class="arithmatex">\(V\)</span>, or <span class="arithmatex">\(\Delta W\)</span> is the model's unique, complete, or human-legible mechanism.</p>
+<h2 id="2-constructing-steering-directions">2. Constructing steering directions<a class="headerlink" href="#2-constructing-steering-directions" title="Permanent link">&para;</a></h2>
+<h3 id="contrastive-mean-directions">Contrastive mean directions<a class="headerlink" href="#contrastive-mean-directions" title="Permanent link">&para;</a></h3>
+<p>Given matched positive and negative prompt sets, a common estimator is</p>
+<div class="arithmatex">\[
+v = \frac{1}{|D^+|}\sum_{p\in D^+}x_{l,t}(p)
+    -\frac{1}{|D^-|}\sum_{p\in D^-}x_{l,t}(p).
+\]</div>
+<p>One then normalizes <span class="arithmatex">\(v\)</span>, often to unit norm, and adds it during a forward pass:</p>
+<div class="arithmatex">\[
+x'_{l,t}=x_{l,t}+\alpha\frac{v}{\lVert v\rVert_2}.
+\]</div>
+<p>The coefficient <span class="arithmatex">\(\alpha\)</span> is a dose, not a universal semantic intensity. Its effect depends on layer norms, model scale, token position, and whether normalization occurs before or after the intervention.</p>
+<h3 id="probe-normal-and-classifier-directions">Probe-normal and classifier directions<a class="headerlink" href="#probe-normal-and-classifier-directions" title="Permanent link">&para;</a></h3>
+<p>A linear classifier normal <span class="arithmatex">\(w\)</span> can be used as a steering direction. This may work, but the direction maximizing classification margin is not necessarily the direction that the model naturally writes or reads. Regularization and dataset artifacts can rotate <span class="arithmatex">\(w\)</span> toward predictive but causally irrelevant dimensions.</p>
+<h3 id="difference-vectors-from-paired-examples">Difference vectors from paired examples<a class="headerlink" href="#difference-vectors-from-paired-examples" title="Permanent link">&para;</a></h3>
+<p>For tightly matched pairs <span class="arithmatex">\((p_i^+,p_i^-)\)</span>, estimate</p>
+<div class="arithmatex">\[
+v_{\text{paired}}=\frac{1}{n}\sum_i
+\left(x_{l,t}(p_i^+)-x_{l,t}(p_i^-)\right).
+\]</div>
+<p>Pairing cancels some nuisance variation. It does not cancel a nuisance that changes systematically with the label, such as prompt length, answer token, or chat template.</p>
+<pre class="mermaid"><code>flowchart TB
+    A[Define semantic contrast] --&gt; B[Create matched prompt pairs]
+    B --&gt; C[Collect x at fixed layer and position]
+    C --&gt; D[Estimate direction v]
+    D --&gt; E[Cross-validated decoding]
+    D --&gt; F[Positive steering +alpha v]
+    D --&gt; G[Negative steering -alpha v]
+    D --&gt; H[Projection or capping]
+    F --&gt; I[Target effect]
+    G --&gt; I
+    H --&gt; I
+    I --&gt; J[Random, shuffled, and norm-matched controls]
+    J --&gt; K[Held-out tasks and collateral suite]</code></pre>
+<h2 id="3-ablation-projection-and-capping">3. Ablation, projection, and capping<a class="headerlink" href="#3-ablation-projection-and-capping" title="Permanent link">&para;</a></h2>
+<p>For a unit direction <span class="arithmatex">\(\hat v=v/\lVert v\rVert\)</span>, the scalar coordinate is</p>
+<div class="arithmatex">\[
+s(x)=\hat v^\top(x-\mu),
+\]</div>
+<p>where <span class="arithmatex">\(\mu\)</span> is an optional reference mean. Removing that component gives</p>
+<div class="arithmatex">\[
+x' = x-s(x)\hat v.
+\]</div>
+<p>For an orthonormal basis <span class="arithmatex">\(V\in\mathbb{R}^{d\times k}\)</span>, projection removal is</p>
+<div class="arithmatex">\[
+x'=(I-VV^\top)(x-\mu)+\mu.
+\]</div>
+<p>Full ablation may remove benign uses of a shared feature. A one-sided cap modifies only unusually high coordinates:</p>
+<div class="arithmatex">\[
+s'(x)=\min(s(x),c), \qquad
+x'=x+[s'(x)-s(x)]\hat v.
+\]</div>
+<p>You can similarly define a lower bound or a two-sided interval. Choose <span class="arithmatex">\(c\)</span> from a clean calibration distribution rather than from the test set—for example, the 99<sup>th</sup> percentile of clean activations.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Projection is a geometric operation, not semantic erasure. Nonlinear networks can reconstruct removed information downstream, route around the subspace, or rely on correlated dimensions. Always re-measure the feature after the intervention and inspect later layers.</p>
+</div>
+<h2 id="4-patching-answers-a-different-question">4. Patching answers a different question<a class="headerlink" href="#4-patching-answers-a-different-question" title="Permanent link">&para;</a></h2>
+<p>In activation patching, run a clean input <span class="arithmatex">\(p_c\)</span> and a corrupted input <span class="arithmatex">\(p_r\)</span>. Replace a chosen component of the corrupted run with its clean counterpart:</p>
+<div class="arithmatex">\[
+x^{(r)}_{l,t} \leftarrow x^{(c)}_{l,t}.
+\]</div>
+<p>Let <span class="arithmatex">\(m\)</span> be a task metric such as the logit difference between correct and incorrect answers. A normalized recovery score is</p>
+<div class="arithmatex">\[
+R=\frac{m_{\text{patched}}-m_{\text{corrupt}}}
+        {m_{\text{clean}}-m_{\text{corrupt}}}.
+\]</div>
+<p>Patching is particularly useful when clean and corrupted examples differ in one known latent variable. It is less interpretable when the states differ in topic, syntax, length, and desired output simultaneously.</p>
+<h2 id="5-persistent-model-editing">5. Persistent model editing<a class="headerlink" href="#5-persistent-model-editing" title="Permanent link">&para;</a></h2>
+<p>Weight editing searches for <span class="arithmatex">\(\Delta\theta\)</span> that changes a target fact or behavior while preserving other outputs. A generic objective is</p>
+<div class="arithmatex">\[
+\min_{\Delta\theta}
+\underbrace{\mathcal L_{\text{target}}(\theta+\Delta\theta)}_{\text{make edit work}}
++\lambda
+\underbrace{\mathbb E_{q\sim D_{\text{preserve}}}
+ D_{\mathrm{KL}}(p_\theta(\cdot|q)\Vert p_{\theta+\Delta\theta}(\cdot|q))}_{\text{preserve nearby behavior}}
++\beta\lVert\Delta\theta\rVert^2.
+\]</div>
+<p>ROME applies a localized rank-one update; MEMIT extends editing to many memories. Fine-tuning and LoRA are broader alternatives. Persistent edits are useful engineering tools, but localization to a small weight set does not prove that the unedited model stored a concept only there.</p>
+<h2 id="6-collateral-effects-are-part-of-the-result">6. Collateral effects are part of the result<a class="headerlink" href="#6-collateral-effects-are-part-of-the-result" title="Permanent link">&para;</a></h2>
+<p>An intervention can score well on its target while damaging adjacent behavior. At minimum, report:</p>
+<ul>
+<li><strong>Efficacy:</strong> change on the intended behavior or logit metric.</li>
+<li><strong>Generalization:</strong> effect on held-out paraphrases, contexts, and task families.</li>
+<li><strong>Specificity:</strong> lack of effect on matched negative controls.</li>
+<li><strong>Fluency:</strong> perplexity, repetition, malformed output, and response length.</li>
+<li><strong>Capability retention:</strong> performance on unrelated abilities.</li>
+<li><strong>Distribution shift:</strong> KL divergence or total variation on clean prompts.</li>
+<li><strong>Asymmetry:</strong> whether <span class="arithmatex">\(+\alpha v\)</span> and <span class="arithmatex">\(-\alpha v\)</span> produce approximately opposing effects.</li>
+<li><strong>Dose response:</strong> whether behavior changes smoothly over <span class="arithmatex">\(\alpha\)</span>, rather than only under destructive perturbations.</li>
+</ul>
+<p>A useful normalized collateral score is</p>
+<div class="arithmatex">\[
+C(\alpha)=\mathbb E_{q\sim D_{\text{control}}}
+D_{\mathrm{KL}}\!\left(
+p_\theta(\cdot|q)\,\Vert\,p_{\theta,\alpha}(\cdot|q)
+\right).
+\]</div>
+<p>There is rarely a single best intervention. Plot a Pareto frontier of target efficacy against collateral change.</p>
+<pre class="mermaid"><code>quadrantChart
+    title Intervention outcomes
+    x-axis Low collateral change --&gt; High collateral change
+    y-axis Low target efficacy --&gt; High target efficacy
+    quadrant-1 Powerful but blunt
+    quadrant-2 Preferred frontier
+    quadrant-3 Ineffective
+    quadrant-4 Damaging and ineffective
+    Random vector: [0.28, 0.18]
+    Large activation addition: [0.82, 0.87]
+    Calibrated cap: [0.27, 0.74]
+    Local weight edit: [0.44, 0.81]</code></pre>
+<h2 id="7-worked-case-study-a-harmless-refusalpersona-direction">7. Worked case study: a harmless refusal/persona direction<a class="headerlink" href="#7-worked-case-study-a-harmless-refusalpersona-direction" title="Permanent link">&para;</a></h2>
+<p>Imagine an instruction-tuned model with a toy policy: it should not reveal the string <code>BLUE-CANARY</code>. You create matched prompts in two conditions:</p>
+<ul>
+<li>policy-active: the system message states the toy policy;</li>
+<li>policy-neutral: the same system message says the string may be repeated.</li>
+</ul>
+<p>You record <span class="arithmatex">\(x_{l,t}\)</span> at the final instruction token and estimate a contrastive vector <span class="arithmatex">\(v_{\text{policy}}\)</span>. Adding <span class="arithmatex">\(v_{\text{policy}}\)</span> to neutral prompts increases refusal from 8% to 61%. Is this a policy mechanism?</p>
+<p>Not yet. A better audit proceeds as follows:</p>
+<ol>
+<li>Check whether the vector transfers to unseen canary strings and paraphrases.</li>
+<li>Compare against a generic refusal vector built from unrelated refusals.</li>
+<li>Add the same-norm random directions at the same layer and token position.</li>
+<li>Apply <span class="arithmatex">\(-v_{\text{policy}}\)</span> to policy-active prompts.</li>
+<li>Test benign questions, formatting tasks, coding, and factual recall.</li>
+<li>Patch only the proposed feature coordinate rather than the whole residual state.</li>
+<li>Inspect whether downstream layers reconstruct the removed coordinate.</li>
+</ol>
+<p>Suppose transfer occurs only for <code>BLUE-CANARY</code>, while a generic refusal vector produces the same refusal increase on every topic. The honest conclusion is that the original contrast mostly captured lexical or generic refusal behavior—not a general representation of the toy policy.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>A failed specificity test is scientifically useful. It changes the claim from “we found the policy representation” to “we found an intervention that induces a refusal-like mode under this prompt distribution.”</p>
+</div>
+<h2 id="8-common-failure-modes">8. Common failure modes<a class="headerlink" href="#8-common-failure-modes" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Behavioral effectiveness is mistaken for feature discovery.</strong> Many off-manifold vectors can change an output.</li>
+<li><strong>The contrast leaks labels.</strong> Positive prompts differ in length, template, answer tokens, or sentiment.</li>
+<li><strong>The intervention is destructive.</strong> Very large <span class="arithmatex">\(\alpha\)</span> degrades the residual stream and creates apparent suppression.</li>
+<li><strong>Layer and position are cherry-picked on the test set.</strong> Use a validation split and report the search space.</li>
+<li><strong>Only one direction is tested.</strong> Include random, shuffled-label, PCA, and unrelated-semantic controls.</li>
+<li><strong>Only average behavior is reported.</strong> Inspect heterogeneous subgroups and per-example sign reversals.</li>
+<li><strong>The network routes around ablation.</strong> Track the decoded feature across later layers.</li>
+<li><strong>Weight locality is confused with causal uniqueness.</strong> Equivalent functions may be distributed or redundantly encoded.</li>
+<li><strong>Safety steering becomes blanket refusal.</strong> Measure safe-task helpfulness and semantic overgeneralization.</li>
+</ol>
+<h2 id="knowledge-check">Knowledge check<a class="headerlink" href="#knowledge-check" title="Permanent link">&para;</a></h2>
+<h3 id="1-a-linear-probe-gets-99-accuracy-what-has-been-established">1. A linear probe gets 99% accuracy. What has been established?<a class="headerlink" href="#1-a-linear-probe-gets-99-accuracy-what-has-been-established" title="Permanent link">&para;</a></h3>
+<details>
+<summary>Answer</summary>
+
+The label is linearly decodable from the sampled activations under the probe's train/test distribution. This does not establish that the model uses the direction, that the representation is unique, or that steering along the probe normal will make a semantically local change.
+
+</details>
+
+<h3 id="2-why-use-paired-contrasts-rather-than-unrelated-positive-and-negative-corpora">2. Why use paired contrasts rather than unrelated positive and negative corpora?<a class="headerlink" href="#2-why-use-paired-contrasts-rather-than-unrelated-positive-and-negative-corpora" title="Permanent link">&para;</a></h3>
+<details>
+<summary>Answer</summary>
+
+Pairing can cancel nuisance variables such as topic, syntax, length, and entity identity. It reduces—not eliminates—the risk that the vector encodes a correlated dataset artifact.
+
+</details>
+
+<h3 id="3-an-intervention-changes-the-target-behavior-only-for-alpha100-where-perplexity-also-triples-how-should-this-be-interpreted">3. An intervention changes the target behavior only for <span class="arithmatex">\(\alpha&gt;100\)</span>, where perplexity also triples. How should this be interpreted?<a class="headerlink" href="#3-an-intervention-changes-the-target-behavior-only-for-alpha100-where-perplexity-also-triples-how-should-this-be-interpreted" title="Permanent link">&para;</a></h3>
+<details>
+<summary>Answer</summary>
+
+The result is more consistent with a destructive off-distribution perturbation than a clean causal manipulation. It is weak evidence for the proposed semantic mechanism. Compare against norm-matched random directions and seek a lower-dose effect with preserved capability.
+
+</details>
+
+<h3 id="4-what-does-normalized-patching-recovery-r1-mean">4. What does normalized patching recovery <span class="arithmatex">\(R=1\)</span> mean?<a class="headerlink" href="#4-what-does-normalized-patching-recovery-r1-mean" title="Permanent link">&para;</a></h3>
+<details>
+<summary>Answer</summary>
+
+For the chosen metric and intervention, the patch restored the full clean-versus-corrupted difference. It does not imply that the patched component is the only mechanism, because components can be redundant and the patch itself may import multiple variables.
+
+</details>
+
+<h2 id="exercise-design-a-collateral-effect-matrix">Exercise: design a collateral-effect matrix<a class="headerlink" href="#exercise-design-a-collateral-effect-matrix" title="Permanent link">&para;</a></h2>
+<p>Choose a proposed steering intervention—for example, verbosity, refusal, honesty, sentiment, or a harmless persona. Write a one-page experiment plan containing:</p>
+<ol>
+<li>A matched-pair construction for <span class="arithmatex">\(v\)</span>.</li>
+<li>The exact layer, token positions, normalization, and <span class="arithmatex">\(\alpha\)</span> grid.</li>
+<li>A target metric and at least four collateral metrics.</li>
+<li>Three negative controls and one positive control.</li>
+<li>A criterion that would falsify the claim that the direction is semantically local.</li>
+<li>A proposed Pareto plot and the intervention you would select from it.</li>
+</ol>
+<p><strong>Extension:</strong> derive a low-rank subspace from multiple independently trained directions, orthogonalize it with QR decomposition, and compare subspace capping with single-vector addition.</p>
+<h2 id="primary-sources-and-tools">Primary sources and tools<a class="headerlink" href="#primary-sources-and-tools" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Turner et al., <a href="https://arxiv.org/abs/2308.10248">Steering Language Models With Activation Engineering</a> (2023).</li>
+<li>Zou et al., <a href="https://arxiv.org/abs/2310.01405">Representation Engineering: A Top-Down Approach to AI Transparency</a> (2023).</li>
+<li>Rimsky et al., <a href="https://arxiv.org/abs/2312.06681">Steering Llama 2 via Contrastive Activation Addition</a> (2023).</li>
+<li>Arditi et al., <a href="https://arxiv.org/abs/2406.11717">Refusal in Language Models Is Mediated by a Single Direction</a> (2024).</li>
+<li>Hernandez et al., <a href="https://arxiv.org/abs/2308.09124">Linearity of Relation Decoding in Transformer Language Models</a> (2023).</li>
+<li>Meng et al., <a href="https://arxiv.org/abs/2202.05262">Locating and Editing Factual Associations in GPT</a> (ROME, 2022).</li>
+<li>Meng et al., <a href="https://arxiv.org/abs/2210.07229">Mass-Editing Memory in a Transformer</a> (MEMIT, 2022).</li>
+<li>Anthropic, <a href="https://www.anthropic.com/news/golden-gate-claude">Golden Gate Claude</a> (2024).</li>
+<li>Anthropic, <a href="https://www.anthropic.com/research/assistant-axis">The Assistant Axis</a> and <a href="https://github.com/safety-research/assistant-axis">open-source implementation</a> (2026).</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Built from a living systematic review · Course content licensed MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" target="_blank" rel="noopener" title="Course repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../javascripts/progress.js"></script>
+      
+    
+  </body>
+</html>

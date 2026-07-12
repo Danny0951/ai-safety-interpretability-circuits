@@ -1,0 +1,2768 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learn to distinguish observations, causal evidence, and mechanistic explanations and to design falsifiable interpretability experiments.">
+      
+      
+        <meta name="author" content="Danny0951 and contributors">
+      
+      
+        <link rel="canonical" href="https://danny0951.github.io/ai-safety-interpretability-circuits/modules/00-orientation/">
+      
+      
+        <link rel="prev" href="../../course-map/">
+      
+      
+        <link rel="next" href="../01-transformer-anatomy/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Orientation: What Counts as Mechanistic Evidence? - Inside the Model</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#00-orientation-what-counts-as-mechanistic-evidence" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Inside the Model" class="md-header__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Inside the Model
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Orientation: What Counts as Mechanistic Evidence?
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Follow system theme"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Follow system theme" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../course-map/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Course Map
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Foundations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../06-superposition/" class="md-tabs__link">
+          
+  
+  
+  Features & Frontier
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../11-steering/" class="md-tabs__link">
+          
+  
+  
+  Safety & Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../labs/" class="md-tabs__link">
+          
+  
+  
+  Labs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/evidence-ladder/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Full Research Catalog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Inside the Model" class="md-nav__button md-logo" aria-label="Inside the Model" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Inside the Model
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Danny0951/ai-safety-interpretability-circuits
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../course-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Course Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · How to Think Mechanistically
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · How to Think Mechanistically
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-object-of-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The object of study
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. The object of study">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#levels-of-claim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Levels of claim
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-from-a-story-to-a-falsifiable-circuit-hypothesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. From a story to a falsifiable circuit hypothesis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-evidence-ladder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The evidence ladder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The evidence ladder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#observation-and-localization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observation and localization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#necessity-sufficiency-and-faithfulness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Necessity, sufficiency, and faithfulness
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-experimental-design-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Experimental design standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Experimental design standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-the-behavior-before-inspecting-internals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Define the behavior before inspecting internals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#construct-matched-counterfactuals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Construct matched counterfactuals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-register-the-causal-contrast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-register the causal contrast
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#replicate-across-examples-and-choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replicate across examples and choices
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-worked-example-testing-a-copy-circuit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Worked example: testing a copy circuit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-practical-exercise-audit-an-interpretability-claim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Practical exercise: audit an interpretability claim
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-primary-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical primary sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-transformer-anatomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Transformer Anatomy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-circuit-algebra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Circuit Algebra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-causal-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · Causal Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-canonical-circuits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Canonical Circuits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-automated-circuit-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Automated Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features & Frontier
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features & Frontier
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-superposition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Superposition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-sparse-autoencoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Sparse Autoencoders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-transcoders-crosscoders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Transcoders & Model Diffing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-attribution-graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 · Attribution Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-explanations-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Reading Model Thoughts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety & Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Safety & Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-steering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 · Steering & Editing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-safety-mechanisms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 · Safety Mechanisms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-auditing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 · Auditing Hidden Behavior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-research-rigor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 · Research That Survives Contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-project-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 · Design a Novel Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/00-environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0 · Environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/01-activation-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 · Activations & Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/02-activation-patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 · Activation Patching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/03-sae-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 · SAE Feature Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/04-circuit-tracer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 · Circuit Tracer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/05-jacobian-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 · Jacobian Lens & NLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/06-safety-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 · Harmless Safety Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/07-explanation-showdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 · Explanation Showdown
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../labs/08-capstone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 · Capstone Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/evidence-ladder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence Ladder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/method-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Method Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/formula-sheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formula Sheet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tool-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/reading-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading Map
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/research-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Research Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-object-of-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The object of study
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. The object of study">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#levels-of-claim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Levels of claim
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-from-a-story-to-a-falsifiable-circuit-hypothesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. From a story to a falsifiable circuit hypothesis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-evidence-ladder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The evidence ladder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The evidence ladder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#observation-and-localization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observation and localization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#necessity-sufficiency-and-faithfulness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Necessity, sufficiency, and faithfulness
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-experimental-design-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Experimental design standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Experimental design standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-the-behavior-before-inspecting-internals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Define the behavior before inspecting internals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#construct-matched-counterfactuals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Construct matched counterfactuals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-register-the-causal-contrast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-register the causal contrast
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#replicate-across-examples-and-choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replicate across examples and choices
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-worked-example-testing-a-copy-circuit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Worked example: testing a copy circuit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-knowledge-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Knowledge check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-practical-exercise-audit-an-interpretability-claim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Practical exercise: audit an interpretability claim
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-primary-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical primary sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="00-orientation-what-counts-as-mechanistic-evidence">00 — Orientation: What Counts as Mechanistic Evidence?<a class="headerlink" href="#00-orientation-what-counts-as-mechanistic-evidence" title="Permanent link">&para;</a></h1>
+<p><strong>Thesis:</strong> A mechanistic explanation earns trust by making precise causal predictions that survive controls, rival hypotheses, and distribution shifts—not by producing a compelling visualization.</p>
+<p>Mechanistic interpretability asks a stronger question than <em>what inputs correlate
+with a model output?</em> It asks which internal variables and computations produce
+the output, how those computations are organized, and what would happen under a
+well-specified intervention. This module establishes the vocabulary and evidence
+standards used throughout the course.</p>
+<div class="admonition intuition">
+<p class="admonition-title">Intuition</p>
+<p>Think of interpretability as experimental science conducted inside a model.
+A heatmap is an observation; a mechanism is a compact causal theory that
+predicts what the model will do when its internal computation is changed.</p>
+</div>
+<p><strong>Estimated time:</strong> 90 minutes<br />
+<strong>Prerequisites:</strong> basic linear algebra, probability, and familiarity with neural
+network forward passes</p>
+<h2 id="learning-objectives">Learning objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this module, you should be able to:</p>
+<ol>
+<li>Distinguish behavioral, representational, and mechanistic claims.</li>
+<li>Separate observation, localization, causal validation, and explanation.</li>
+<li>Write a circuit hypothesis in a form that could be falsified.</li>
+<li>Evaluate necessity, sufficiency, faithfulness, completeness, and robustness
+   without treating any one metric as decisive.</li>
+<li>Design clean/corrupted counterfactuals that change the target variable while
+   minimizing unrelated changes.</li>
+<li>Recognize when an attractive visualization is evidence, a hypothesis
+   generator, or merely a story.</li>
+</ol>
+<h2 id="1-the-object-of-study">1. The object of study<a class="headerlink" href="#1-the-object-of-study" title="Permanent link">&para;</a></h2>
+<p>Let a model be a function</p>
+<div class="arithmatex">\[
+f_\theta : x \mapsto y,
+\]</div>
+<p>with intermediate activations</p>
+<div class="arithmatex">\[
+h_1(x), h_2(x), \ldots, h_L(x).
+\]</div>
+<p>A behavioral study characterizes the mapping from <span class="arithmatex">\(x\)</span> to <span class="arithmatex">\(y\)</span>. A
+representational study asks what information is available in some <span class="arithmatex">\(h_\ell\)</span>. A
+mechanistic study additionally proposes a computation: which internal variables
+transform which inputs, along which paths, to cause a particular output.</p>
+<p>The same experiment can support one claim while failing to support another. A
+linear probe that predicts whether a prompt is truthful establishes
+<em>decodability</em>. It does not establish that the model uses that direction, that
+the direction means truth rather than a correlated topic, or that intervening on
+it will selectively alter truthfulness.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>“Information is present,” “this site is causally relevant,” and “the model
+uses this variable in the proposed algorithm” are three different claims.
+Do not silently move from the first to the third.</p>
+</div>
+<pre class="mermaid"><code>flowchart LR
+    X[Input and context] --&gt; B[Behavioral regularity]
+    X --&gt; H[Hidden activations]
+    H --&gt; P[Probe or visualization]
+    P --&gt; R[Representational hypothesis]
+    R --&gt; I[Targeted intervention]
+    I --&gt; C[Causal effect]
+    C --&gt; M[Mechanistic model]
+    M --&gt; T[New held-out predictions]
+    T -. falsifies or strengthens .-&gt; M</code></pre>
+<h3 id="levels-of-claim">Levels of claim<a class="headerlink" href="#levels-of-claim" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Example</th>
+<th>Minimum useful evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Behavioral</td>
+<td>“The model resolves this pronoun.”</td>
+<td>Held-out behavior and controls</td>
+</tr>
+<tr>
+<td>Correlational</td>
+<td>“Head 8.6 attends to the antecedent.”</td>
+<td>Activation/attention statistics</td>
+</tr>
+<tr>
+<td>Representational</td>
+<td>“The residual stream encodes the antecedent.”</td>
+<td>Decoding plus specificity controls</td>
+</tr>
+<tr>
+<td>Causal</td>
+<td>“This component contributes to the answer.”</td>
+<td>Intervention with a justified baseline</td>
+</tr>
+<tr>
+<td>Computational</td>
+<td>“These components implement a copy operation.”</td>
+<td>Path-level evidence and predicted effects</td>
+</tr>
+<tr>
+<td>Algorithmic</td>
+<td>“The model applies this procedure across inputs.”</td>
+<td>Generalization, causal abstraction, and competing hypotheses</td>
+</tr>
+</tbody>
+</table>
+<p>Mechanistic interpretability usually moves between three descriptions:</p>
+<ul>
+<li><strong>Variables:</strong> features such as a token identity, board state, or grammatical
+  role.</li>
+<li><strong>Operations:</strong> copying, comparison, inhibition, addition, lookup, or routing.</li>
+<li><strong>Implementation:</strong> neurons, attention heads, residual directions, sparse
+  features, or paths that realize those variables and operations.</li>
+</ul>
+<pre class="mermaid"><code>flowchart TB
+    subgraph Task[Behavioral problem]
+        A[Prompt distribution] --&gt; Z[Correct answer variable]
+    end
+    subgraph Algorithm[Candidate algorithm]
+        V1[Represent entity] --&gt; O1[Compare or route]
+        O1 --&gt; V2[Answer representation]
+    end
+    subgraph Implementation[Model implementation]
+        N1[Heads / neurons / features] --&gt; E[Residual-stream edges]
+        E --&gt; N2[Later heads / MLPs]
+        N2 --&gt; L[Logits]
+    end
+    Z -. abstraction relation .-&gt; V2
+    V1 -. realized by .-&gt; N1
+    O1 -. realized by .-&gt; E</code></pre>
+<h2 id="2-from-a-story-to-a-falsifiable-circuit-hypothesis">2. From a story to a falsifiable circuit hypothesis<a class="headerlink" href="#2-from-a-story-to-a-falsifiable-circuit-hypothesis" title="Permanent link">&para;</a></h2>
+<p>A useful hypothesis specifies five things:</p>
+<ol>
+<li><strong>Scope:</strong> model, checkpoint, prompt distribution, token positions, and
+   behavior.</li>
+<li><strong>Variables:</strong> the internal components or feature directions being claimed.</li>
+<li><strong>Computation:</strong> the transformation and information flow between them.</li>
+<li><strong>Observable prediction:</strong> what changes under a particular intervention.</li>
+<li><strong>Rival explanation:</strong> at least one plausible alternative the experiment can
+   distinguish.</li>
+</ol>
+<p>For example:</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>A good hypothesis names the prompt distribution, component, information
+flow, metric, intervention, negative control, and a result that would count
+against the story.</p>
+</div>
+<blockquote>
+<p>On prompts of the form “A, B, and C entered. B gave a book to …”, head <span class="arithmatex">\(h\)</span> at
+the final token writes the residual direction that raises the logit of B. If
+the source-name representation is replaced with the matched representation
+from a prompt whose answer is C, the B-minus-C logit difference will reverse;
+patching an unrelated position will not.</p>
+</blockquote>
+<p>This is stronger than “head <span class="arithmatex">\(h\)</span> is a name head.” It names a distribution, a
+position, a write operation, a behavioral metric, an intervention, and a
+negative control.</p>
+<h2 id="3-the-evidence-ladder">3. The evidence ladder<a class="headerlink" href="#3-the-evidence-ladder" title="Permanent link">&para;</a></h2>
+<p>Interpretability studies often accumulate evidence in the following order. The
+order is not a guarantee of truth, but it helps expose missing steps.</p>
+<pre class="mermaid"><code>flowchart TD
+    E0[0. Establish behavior] --&gt; E1[1. Observe activations]
+    E1 --&gt; E2[2. Localize candidate components]
+    E2 --&gt; E3[3. Test interventions]
+    E3 --&gt; E4[4. Test paths and interactions]
+    E4 --&gt; E5[5. Compare rival mechanisms]
+    E5 --&gt; E6[6. Predict held-out cases]
+    E6 --&gt; E7[7. Stress-test distribution and baselines]</code></pre>
+<h3 id="observation-and-localization">Observation and localization<a class="headerlink" href="#observation-and-localization" title="Permanent link">&para;</a></h3>
+<p>Observation asks where a signal is visible. Localization asks which candidate
+sites best predict or mediate a behavioral difference. Typical tools include:</p>
+<ul>
+<li>attention-pattern inspection;</li>
+<li>probes and representational similarity;</li>
+<li>direct logit attribution;</li>
+<li>activation patching or causal tracing;</li>
+<li>gradients, integrated gradients, and attribution patching;</li>
+<li>sparse feature activation and automated circuit discovery.</li>
+</ul>
+<p>Localization narrows the search space. It is not a complete explanation. A
+signal can be copied through many sites, a component can be causally important
+for multiple unrelated reasons, and distributed computations can defeat
+single-site rankings.</p>
+<h3 id="interventions">Interventions<a class="headerlink" href="#interventions" title="Permanent link">&para;</a></h3>
+<p>An intervention replaces or modifies an internal activation. For component
+<span class="arithmatex">\(c\)</span>, a patching experiment can be written</p>
+<div class="arithmatex">\[
+y_{c \leftarrow \tilde h_c}
+= f_\theta\!\left(x;\operatorname{do}(h_c=\tilde h_c)\right),
+\]</div>
+<p>where <span class="arithmatex">\(\tilde h_c\)</span> might come from a corrupted or clean counterfactual input.
+The notation resembles a causal intervention, but its interpretation depends on
+whether <span class="arithmatex">\(\tilde h_c\)</span> is meaningful in the surrounding computation. Patching can
+create an off-distribution hybrid state.</p>
+<p>For a scalar behavioral metric <span class="arithmatex">\(m\)</span>, a normalized recovery score is often</p>
+<div class="arithmatex">\[
+R_c = \frac{m(y_{c\leftarrow h_c^{\text{clean}}})-
+                 m(y^{\text{corrupt}})}
+                {m(y^{\text{clean}})-m(y^{\text{corrupt}})}.
+\]</div>
+<p><span class="arithmatex">\(R_c=1\)</span> means the patch recovers the full clean/corrupt gap for that metric;
+<span class="arithmatex">\(R_c&gt;1\)</span> and <span class="arithmatex">\(R_c&lt;0\)</span> are possible and should not be silently clipped.</p>
+<h3 id="necessity-sufficiency-and-faithfulness">Necessity, sufficiency, and faithfulness<a class="headerlink" href="#necessity-sufficiency-and-faithfulness" title="Permanent link">&para;</a></h3>
+<p>Suppose <span class="arithmatex">\(C\)</span> is a proposed circuit and <span class="arithmatex">\(\bar C\)</span> is the rest of the model.</p>
+<ul>
+<li><strong>Necessity:</strong> disrupting <span class="arithmatex">\(C\)</span> damages the target behavior.</li>
+<li><strong>Sufficiency:</strong> preserving <span class="arithmatex">\(C\)</span> while ablating an appropriately defined
+  complement retains the behavior.</li>
+<li><strong>Faithfulness:</strong> the circuit-only or circuit-intervened computation predicts
+  the original model's behavior under the relevant distribution.</li>
+<li><strong>Completeness:</strong> important causal contributors are not omitted.</li>
+<li><strong>Minimality:</strong> removing elements of <span class="arithmatex">\(C\)</span> materially reduces faithfulness.</li>
+</ul>
+<p>These depend on the ablation. Zero, mean, resample, noise, and learned
+replacement baselines answer different counterfactual questions. A circuit may
+look sufficient under an easy mean ablation and fail under resampling.</p>
+<h2 id="4-experimental-design-standards">4. Experimental design standards<a class="headerlink" href="#4-experimental-design-standards" title="Permanent link">&para;</a></h2>
+<h3 id="define-the-behavior-before-inspecting-internals">Define the behavior before inspecting internals<a class="headerlink" href="#define-the-behavior-before-inspecting-internals" title="Permanent link">&para;</a></h3>
+<p>Choose a metric that captures the target computation rather than convenient
+surface behavior. For two answer tokens <span class="arithmatex">\(a\)</span> and <span class="arithmatex">\(b\)</span>, a common metric is the
+logit difference</p>
+<div class="arithmatex">\[
+m(x) = z_a(x)-z_b(x).
+\]</div>
+<p>Logit difference is usually more stable than probability difference because
+softmax couples every vocabulary item, but it still ignores effects on other
+plausible answers.</p>
+<h3 id="construct-matched-counterfactuals">Construct matched counterfactuals<a class="headerlink" href="#construct-matched-counterfactuals" title="Permanent link">&para;</a></h3>
+<p>A clean/corrupted pair should modify the causal variable of interest while
+preserving length, tokenization, grammaticality, and unrelated semantics where
+possible. Check the model actually exhibits the expected behavior on both
+members. Otherwise, “recovery” can measure an arbitrary distribution shift.</p>
+<h3 id="pre-register-the-causal-contrast">Pre-register the causal contrast<a class="headerlink" href="#pre-register-the-causal-contrast" title="Permanent link">&para;</a></h3>
+<p>State before looking at the heatmap:</p>
+<ul>
+<li>what is patched or ablated;</li>
+<li>source and destination examples;</li>
+<li>positions and layers;</li>
+<li>metric and normalization;</li>
+<li>positive, negative, and placebo controls;</li>
+<li>held-out template or task split;</li>
+<li>what result would reject the hypothesis.</li>
+</ul>
+<h3 id="replicate-across-examples-and-choices">Replicate across examples and choices<a class="headerlink" href="#replicate-across-examples-and-choices" title="Permanent link">&para;</a></h3>
+<p>Report distributions and bootstrap intervals, not only a showcase prompt.
+Repeat across prompt templates, random seeds when feasible, ablation baselines,
+and plausible token-position alignments. Use a held-out set for the final
+mechanistic predictions.</p>
+<h2 id="5-worked-example-testing-a-copy-circuit">5. Worked example: testing a copy circuit<a class="headerlink" href="#5-worked-example-testing-a-copy-circuit" title="Permanent link">&para;</a></h2>
+<p>Consider a tiny model trained on sequences such as:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>red blue green | blue
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>cat dog owl    | dog
+</span></code></pre></div>
+<p>The model sees three items, a separator, and must reproduce the middle item.</p>
+<p><strong>Behavioral metric.</strong> For a clean sequence whose answer is <code>blue</code> and a matched
+corrupted sequence whose middle item is <code>green</code>, use</p>
+<div class="arithmatex">\[m=z_{\text{blue}}-z_{\text{green}}.\]</div>
+<p><strong>Observation.</strong> One late attention head attends from the answer position to
+the middle input position. Its output has high direct attribution to <code>blue</code>.</p>
+<p><strong>Hypothesis.</strong> The head uses positional attention to select the middle token
+and an OV transformation to copy its token identity into the answer residual
+stream.</p>
+<p><strong>Tests.</strong></p>
+<ol>
+<li>Patch the head's output from the clean run into the corrupt run at the answer
+   position; predict positive recovery.</li>
+<li>Patch only its attention pattern; predict recovery if selection is causal.</li>
+<li>Patch only its value vectors; predict recovery if copied content is causal.</li>
+<li>Patch a matched head that attends to the separator; predict little recovery.</li>
+<li>Swap the first and third tokens while preserving the middle token; predict
+   stable behavior if the rule is truly “middle item,” not “specific context.”</li>
+<li>Ablate the proposed head and search for backup heads; one-head necessity is
+   not required by the task-level algorithm.</li>
+</ol>
+<p>If head-output patching works but pattern and value patching do not, the simple
+copy story is incomplete. The effect may arise from nonlinear interactions,
+normalization, or a correlated state imported by the full head output.</p>
+<h2 id="6-common-failure-modes">6. Common failure modes<a class="headerlink" href="#6-common-failure-modes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Attention-is-explanation:</strong> an attention edge shows routing weights, not the
+  content carried or its causal importance.</li>
+<li><strong>Probe reification:</strong> a decodable variable is assumed to be used by the
+  model.</li>
+<li><strong>Single-prompt storytelling:</strong> a compelling visualization is selected after
+  inspecting many examples.</li>
+<li><strong>Confounded corruptions:</strong> clean and corrupt prompts differ in tokenization,
+  position, grammar, topic, or difficulty.</li>
+<li><strong>Off-distribution interventions:</strong> patched activations are incompatible with
+  the destination context.</li>
+<li><strong>Baseline dependence:</strong> conclusions change under zero, mean, resample, or
+  noise ablation.</li>
+<li><strong>Metric hacking:</strong> the intervention improves a chosen logit difference while
+  damaging overall behavior.</li>
+<li><strong>Redundancy blindness:</strong> ablation finds a component unnecessary because a
+  backup pathway compensates.</li>
+<li><strong>Nonlinear interaction blindness:</strong> independently weak components are strong
+  jointly, or independently strong effects cancel.</li>
+<li><strong>Surrogate confusion:</strong> a sparse autoencoder, transcoder, or replacement
+  model is interpreted as though it were the original network.</li>
+<li><strong>Autointerpretation as ground truth:</strong> fluent feature labels are repeated
+  without dataset and intervention checks.</li>
+<li><strong>No rival hypothesis:</strong> evidence is collected only for one favored story.</li>
+</ul>
+<h2 id="7-knowledge-check">7. Knowledge check<a class="headerlink" href="#7-knowledge-check" title="Permanent link">&para;</a></h2>
+<ol>
+<li>A probe reaches 99% accuracy for a variable. What has been established?</li>
+<li>Why can a component be necessary but not sufficient?</li>
+<li>Why is a resample ablation usually a different experiment from zero
+   ablation?</li>
+<li>What does normalized patching recovery greater than one mean?</li>
+<li>Name two reasons a clean/corrupted pair can give a misleading heatmap.</li>
+</ol>
+<details>
+<summary>Answers</summary>
+
+1. The variable is decodable from the probed activations on that dataset. Use,
+   causal relevance, semantic purity, and generalization have not been shown.
+2. The component may be one required step whose output only works with the rest
+   of the model. Necessity asks what happens when it is removed; sufficiency asks
+   whether the retained subsystem can produce the behavior under a specified
+   complement ablation.
+3. Zero may be an unusual activation and removes both information and typical
+   magnitude. Resampling substitutes an activation from a reference
+   distribution, asking what happens when contextual information is replaced
+   while more ordinary activation statistics are retained.
+4. The patch changed the metric by more than the original clean/corrupt gap. It
+   can reflect overshoot, interaction effects, noise in the denominator, or a
+   patch that creates a hybrid state; it is not automatically “more than fully
+   causal.”
+5. Examples include token-length changes, grammaticality changes, answer-token
+   frequency, position shifts, multiple semantic variables changing, or the
+   model failing the intended behavior on one side of the pair.
+
+</details>
+
+<h2 id="8-practical-exercise-audit-an-interpretability-claim">8. Practical exercise: audit an interpretability claim<a class="headerlink" href="#8-practical-exercise-audit-an-interpretability-claim" title="Permanent link">&para;</a></h2>
+<p>Choose one figure from a mechanistic-interpretability paper and write a
+one-page evidence audit:</p>
+<ol>
+<li>State the exact claim in one sentence.</li>
+<li>Label it behavioral, correlational, representational, causal,
+   computational, or algorithmic.</li>
+<li>Identify the model, dataset, metric, intervention, and ablation baseline.</li>
+<li>Draw a causal diagram with the intended variable, possible confounders, the
+   measured activation, and the output.</li>
+<li>Write one rival mechanism consistent with the published result.</li>
+<li>Propose one positive control, one negative control, and one held-out
+   prediction.</li>
+<li>State the strongest conclusion justified by the evidence and one stronger
+   conclusion that is <em>not</em> justified.</li>
+</ol>
+<p>Save the audit before reading the paper's discussion section, then compare your
+critique with the authors' stated limitations.</p>
+<h2 id="canonical-primary-sources">Canonical primary sources<a class="headerlink" href="#canonical-primary-sources" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Olah et al., <a href="https://distill.pub/2020/circuits/zoom-in/">Zoom In: An Introduction to Circuits</a></li>
+<li>Elhage et al., <a href="https://transformer-circuits.pub/2021/framework/index.html">A Mathematical Framework for Transformer Circuits</a></li>
+<li>Wang et al., <a href="https://arxiv.org/abs/2211.00593">Interpretability in the Wild: a Circuit for Indirect Object Identification</a></li>
+<li>Geiger et al., <a href="https://arxiv.org/abs/2301.04709">Causal Abstraction for Faithful Model Interpretation</a></li>
+<li>Conmy et al., <a href="https://arxiv.org/abs/2304.14997">Towards Automated Circuit Discovery for Mechanistic Interpretability</a></li>
+<li>Goldowsky-Dill et al., <a href="https://arxiv.org/abs/2304.05969">Localizing Model Behavior with Path Patching</a></li>
+<li>Miller et al., <a href="https://arxiv.org/abs/2407.08734">Towards Evaluating the Faithfulness of Circuit Discovery Methods</a></li>
+<li>Ameisen et al., <a href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html">Circuit Tracing: Revealing Computational Graphs in Language Models</a></li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Built from a living systematic review · Course content licensed MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Danny0951/ai-safety-interpretability-circuits" target="_blank" rel="noopener" title="Course repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../javascripts/progress.js"></script>
+      
+    
+  </body>
+</html>
