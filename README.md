@@ -4,6 +4,25 @@ A living systematic review, learning path, and reproducible research map for
 mechanistic interpretability of modern neural networks, with an emphasis on
 transformer circuits and safety-relevant applications.
 
+## Visual course
+
+The repository now includes **Inside the Model**, a visual course with 16
+conceptual modules, 9 hands-on labs, diagrams, knowledge checks, reference
+sheets, and a capstone research protocol.
+
+- [Open the published course](https://danny0951.github.io/ai-safety-interpretability-circuits/)
+- [Browse the course source](docs/index.md)
+- [See the full course map](docs/course-map.md)
+
+To preview it locally:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements-docs.txt
+make course-serve
+```
+
 Snapshot date: **2026-07-12**. The catalog is a work in progress; “collected”
 does not mean “endorsed,” “read,” or “replicated.” Review state is tracked for
 every source.

@@ -1,0 +1,151 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+site_name: Inside the Model
+site_description: A visual course in mechanistic interpretability, transformer circuits, and AI safety
+site_author: Danny0951 and contributors
+site_url: https://danny0951.github.io/ai-safety-interpretability-circuits/
+repo_url: https://github.com/Danny0951/ai-safety-interpretability-circuits
+repo_name: Danny0951/ai-safety-interpretability-circuits
+edit_uri: edit/main/docs/
+copyright: Built from a living systematic review · Course content licensed MIT
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  font: false
+  language: en
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - content.tooltips
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Follow system theme
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+  - javascripts/progress.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Danny0951/ai-safety-interpretability-circuits
+      name: Course repository
+
+nav:
+  - Home: index.md
+  - Course Map: course-map.md
+  - Foundations:
+      - 0 · How to Think Mechanistically: modules/00-orientation.md
+      - 1 · Transformer Anatomy: modules/01-transformer-anatomy.md
+      - 2 · Circuit Algebra: modules/02-circuit-algebra.md
+      - 3 · Causal Experiments: modules/03-causal-experiments.md
+      - 4 · Canonical Circuits: modules/04-canonical-circuits.md
+      - 5 · Automated Discovery: modules/05-automated-circuit-discovery.md
+  - Features & Frontier:
+      - 6 · Superposition: modules/06-superposition.md
+      - 7 · Sparse Autoencoders: modules/07-sparse-autoencoders.md
+      - 8 · Transcoders & Model Diffing: modules/08-transcoders-crosscoders.md
+      - 9 · Attribution Graphs: modules/09-attribution-graphs.md
+      - 10 · Reading Model Thoughts: modules/10-explanations-workspace.md
+  - Safety & Research:
+      - 11 · Steering & Editing: modules/11-steering.md
+      - 12 · Safety Mechanisms: modules/12-safety-mechanisms.md
+      - 13 · Auditing Hidden Behavior: modules/13-auditing.md
+      - 14 · Research That Survives Contact: modules/14-research-rigor.md
+      - 15 · Design a Novel Project: modules/15-project-design.md
+  - Labs:
+      - Lab Guide: labs/index.md
+      - 0 · Environment: labs/00-environment.md
+      - 1 · Activations & Attribution: labs/01-activation-cache.md
+      - 2 · Activation Patching: labs/02-activation-patching.md
+      - 3 · SAE Feature Validation: labs/03-sae-features.md
+      - 4 · Circuit Tracer: labs/04-circuit-tracer.md
+      - 5 · Jacobian Lens & NLA: labs/05-jacobian-lens.md
+      - 6 · Harmless Safety Audit: labs/06-safety-audit.md
+      - 7 · Explanation Showdown: labs/07-explanation-showdown.md
+      - 8 · Capstone Protocol: labs/08-capstone.md
+  - Reference:
+      - Evidence Ladder: reference/evidence-ladder.md
+      - Method Matrix: reference/method-matrix.md
+      - Formula Sheet: reference/formula-sheet.md
+      - Tool Stack: reference/tool-stack.md
+      - Reading Map: reference/reading-map.md
+      - Glossary: reference/glossary.md
+      - Research Templates: reference/research-templates.md
+  - About: about.md
+  - Full Research Catalog: https://github.com/Danny0951/ai-safety-interpretability-circuits/blob/main/CATALOG.md

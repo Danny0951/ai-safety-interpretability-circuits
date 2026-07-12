@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -14,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "data" / "catalog.csv"
 URL_FIELDS = ("canonical_url", "pdf_url", "code_url", "data_url")
+MARKDOWN_URL = re.compile(r"(?:\]\(|href=[\"'])(https://[^\s)\"']+)")
 SOFT_SUCCESS = {401, 403, 405, 429}
 USER_AGENT = (
     "Mozilla/5.0 (compatible; literature-link-checker/0.1; "
@@ -54,6 +56,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--workers", type=int, default=12)
     parser.add_argument("--timeout", type=float, default=20.0)
+    parser.add_argument("--include-docs", action="store_true")
     args = parser.parse_args()
 
     with CATALOG.open(newline="", encoding="utf-8") as handle:
@@ -66,6 +69,13 @@ def main() -> None:
             if (row.get(field) or "").strip()
         }
     )
+    if args.include_docs:
+        course_urls = {
+            match.group(1).rstrip(".,;")
+            for path in (ROOT / "docs").rglob("*.md")
+            for match in MARKDOWN_URL.finditer(path.read_text(encoding="utf-8"))
+        }
+        urls = sorted(set(urls) | course_urls)
 
     failures: list[tuple[str, int | None, str]] = []
     restricted = 0

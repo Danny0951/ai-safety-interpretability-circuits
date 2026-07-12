@@ -1,0 +1,304 @@
+:root {
+  --course-ink: #101827;
+  --course-cyan: #20b8b0;
+  --course-cyan-bright: #43d9d1;
+  --course-violet: #7557e8;
+  --course-orange: #f39a37;
+  --course-pink: #d959a7;
+  --course-muted: #64748b;
+  --md-primary-fg-color: #162238;
+  --md-primary-fg-color--light: #243451;
+  --md-primary-fg-color--dark: #0d1524;
+  --md-accent-fg-color: #168f89;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #0b1220;
+  --md-default-fg-color: #e7edf6;
+  --md-primary-fg-color: #0e1727;
+  --md-primary-fg-color--light: #1e2c46;
+  --md-accent-fg-color: #43d9d1;
+  --course-muted: #9aa9be;
+}
+
+body,
+input {
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.md-typeset h1 {
+  color: var(--md-default-fg-color);
+}
+
+.course-hero {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 1.4rem;
+  padding: clamp(1.6rem, 4vw, 3.5rem);
+  border: 1px solid color-mix(in srgb, var(--course-cyan) 30%, transparent);
+  border-radius: 1.1rem;
+  background:
+    radial-gradient(circle at 84% 18%, rgb(117 87 232 / 24%), transparent 32%),
+    radial-gradient(circle at 8% 90%, rgb(32 184 176 / 20%), transparent 30%),
+    linear-gradient(135deg, #101a2c, #111827 58%, #17172c);
+  box-shadow: 0 1.2rem 3rem rgb(15 23 42 / 18%);
+  color: #eef8ff;
+}
+
+.course-hero::after {
+  position: absolute;
+  right: -4rem;
+  bottom: -7rem;
+  width: 18rem;
+  height: 18rem;
+  border: 1px solid rgb(67 217 209 / 25%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2.5rem rgb(117 87 232 / 7%), 0 0 0 5rem rgb(67 217 209 / 5%);
+  content: "";
+}
+
+.course-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.course-hero h1 {
+  margin: 0.1rem 0 0;
+  color: #fff;
+  font-size: clamp(2.4rem, 8vw, 5.4rem);
+  line-height: 0.98;
+}
+
+.course-hero h2 {
+  max-width: 46rem;
+  margin: 0.8rem 0 1.1rem;
+  color: #bce8e6;
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  line-height: 1.35;
+}
+
+.course-hero p {
+  max-width: 48rem;
+  color: #d5dfec;
+  font-size: 0.95rem;
+}
+
+.eyebrow {
+  color: var(--course-cyan-bright);
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.course-hero .md-button {
+  margin: 0.4rem 0.4rem 0 0;
+  border-color: rgb(255 255 255 / 42%);
+  color: #fff;
+}
+
+.course-hero .md-button--primary {
+  border-color: var(--course-cyan-bright);
+  background: var(--course-cyan-bright);
+  color: #0b1822;
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 1rem 0 1.8rem;
+}
+
+.course-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 14rem;
+  padding: 1.05rem 1.1rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.8rem;
+  background: var(--md-default-bg-color);
+  box-shadow: 0 0.35rem 1rem rgb(15 23 42 / 7%);
+}
+
+.course-card::before {
+  display: block;
+  width: 2.8rem;
+  height: 0.25rem;
+  margin-bottom: 0.9rem;
+  border-radius: 1rem;
+  content: "";
+}
+
+.course-card--cyan::before { background: var(--course-cyan); }
+.course-card--violet::before { background: var(--course-violet); }
+.course-card--orange::before { background: var(--course-orange); }
+
+.course-card h3 {
+  margin-top: 0;
+}
+
+.course-card p {
+  font-size: 0.78rem;
+}
+
+.course-progress-card {
+  display: grid;
+  grid-template-columns: minmax(10rem, 16rem) 1fr auto;
+  gap: 0.8rem;
+  align-items: center;
+  margin: 1.2rem 0 2rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--course-violet) 25%, var(--md-default-fg-color--lightest));
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--course-violet) 5%, var(--md-default-bg-color));
+}
+
+.course-progress-copy {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7rem;
+}
+
+.course-progress-copy span {
+  color: var(--course-muted);
+}
+
+.course-progress-track {
+  overflow: hidden;
+  height: 0.62rem;
+  border-radius: 2rem;
+  background: color-mix(in srgb, var(--course-muted) 17%, transparent);
+}
+
+.course-progress-track span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--course-cyan), var(--course-violet));
+  transition: width 250ms ease;
+}
+
+.course-reset,
+.course-complete {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.45rem;
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.course-complete {
+  float: right;
+  margin: 0.2rem 0 0.8rem 1rem;
+  border-color: color-mix(in srgb, var(--course-cyan) 45%, transparent);
+}
+
+.course-complete[aria-pressed="true"] {
+  background: var(--course-cyan);
+  color: #071617;
+}
+
+.md-nav__link.course-done::after {
+  margin-left: auto;
+  color: var(--course-cyan);
+  content: "✓";
+  font-weight: 900;
+}
+
+.md-typeset .admonition.intuition,
+.md-typeset details.intuition {
+  border-color: var(--course-violet);
+}
+
+.md-typeset .intuition > .admonition-title,
+.md-typeset .intuition > summary {
+  background-color: color-mix(in srgb, var(--course-violet) 12%, transparent);
+}
+
+.md-typeset .admonition.claim,
+.md-typeset details.claim {
+  border-color: var(--course-cyan);
+}
+
+.md-typeset .claim > .admonition-title,
+.md-typeset .claim > summary {
+  background-color: color-mix(in srgb, var(--course-cyan) 12%, transparent);
+}
+
+.md-typeset .admonition.falsifier,
+.md-typeset details.falsifier {
+  border-color: var(--course-orange);
+}
+
+.md-typeset .falsifier > .admonition-title,
+.md-typeset .falsifier > summary {
+  background-color: color-mix(in srgb, var(--course-orange) 13%, transparent);
+}
+
+.md-typeset table:not([class]) {
+  display: table;
+  width: 100%;
+  font-size: 0.72rem;
+}
+
+.md-typeset .mermaid {
+  margin: 1.2rem auto;
+  padding: 0.7rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--md-default-bg-color) 94%, var(--course-cyan));
+}
+
+.compute-badge {
+  display: inline-block;
+  margin: 0 0.3rem 0.3rem 0;
+  padding: 0.18rem 0.42rem;
+  border-radius: 2rem;
+  background: color-mix(in srgb, var(--course-violet) 12%, transparent);
+  color: var(--md-default-fg-color);
+  font-size: 0.62rem;
+  font-weight: 750;
+}
+
+@media (max-width: 800px) {
+  .course-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .course-card {
+    min-height: 0;
+  }
+
+  .course-progress-card {
+    grid-template-columns: 1fr;
+  }
+
+  .course-hero {
+    padding: 1.5rem 1.1rem;
+  }
+
+  .course-complete {
+    float: none;
+    margin: 0.15rem 0 0.8rem;
+  }
+}
+
+@media print {
+  .course-complete,
+  .course-reset,
+  .course-progress-card {
+    display: none;
+  }
+}
